@@ -1,0 +1,2 @@
+rootProject.name = 'compiling-mate'
+include ':api', ':core'

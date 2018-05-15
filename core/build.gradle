@@ -1,0 +1,4 @@
+dependencies {
+    compile 'com.google.guava:guava:20.0'
+    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
+}

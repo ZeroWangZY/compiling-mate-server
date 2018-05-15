@@ -1,0 +1,15 @@
+group = 'ecnu.compiling'
+version = '0.0.1-SNAPSHOT'
+
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.16.20'
+        testCompile 'junit:junit:4.12'
+    }
+}
