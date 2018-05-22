@@ -11,11 +11,11 @@
       "name": "lex"
     },
     {
-      "name": "sytax"
+      "name": "syntax"
     }
   ],
   "paths": {
-    "/lex/tokens": {
+    "/lex/scan": {
       "post": {
         "tags": [
           "lex"
@@ -48,7 +48,7 @@
       }
     },
     "/lex/reProcessingOutput": {
-      "get": {
+      "post": {
         "tags": ["lex"],
         "summary": "给定RE, 获得算法处理该RE的过程数据",
         "description": "",
@@ -70,6 +70,31 @@
             "description": "success",
             "schema": {
               "$ref": "#/definitions/ReProcessingOutputData"
+            }
+          }
+        }
+      }
+    },
+    "syntax/parsingProcessingOutput": {
+      "post": {
+        "tags": ["syntax"],
+        "summary": "给定CFG, 获得产生parsing table的过程",
+        "description": "",
+        "operationId": "getParsingProcessingOutput",
+        "parameters": [
+          {
+            "name": "cfg",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "example": "cfg schema待定"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ParsingProcessingOutputData"
             }
           }
         }
@@ -172,6 +197,39 @@
         "thompsonData": {
           "type":"array",
           "items": {"$ref": "#/definitions/DfaGraph"}
+        }
+      }
+    },
+    "ParsingProcessingOutputData": {
+      "type": "object",
+      "properties": {
+        "xxxTable": {
+          "type":"string",
+          "example": "待定"
+        }
+      }
+    },
+    "FaState": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": "1"
+        },
+        "nextInput": {
+          "type": "char",
+          "example": "c"
+        },
+        "nextState": {
+          "type": "FaState"
+        },
+        "nextStateWhenEmptyInput": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/FaState"}
+        },
+        "isFinal": {
+          "type": "boolean",
+          "example": false
         }
       }
     }
