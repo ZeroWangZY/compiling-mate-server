@@ -113,13 +113,18 @@
       "properties": {
         "tokenType": {
           "type": "string",
-          "example": "NUMBER",
+          "example": "IDENTIFIER",
           "description": "token的类型"
         },
         "lexeme": {
           "type": "string",
-          "example": "21",
-          "description": "该token的内容"
+          "example": "counter",
+          "description": "该token的文字"
+        },
+        "literal": {
+          "type": "string",
+          "example": "13",
+          "description": "该token的值"
         },
         "line": {
           "type": "integer",
