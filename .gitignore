@@ -31,3 +31,4 @@
 /api/out/
 /core/build/
 /core/out/
+*.class
