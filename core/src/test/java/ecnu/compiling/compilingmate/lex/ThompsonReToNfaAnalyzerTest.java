@@ -3,7 +3,7 @@ package ecnu.compiling.compilingmate.lex;
 import ecnu.compiling.compilingmate.lex.analyzer.ReToNfaAnalyzer;
 import ecnu.compiling.compilingmate.lex.analyzer.TompsonAnalyzer;
 import ecnu.compiling.compilingmate.lex.entity.State;
-import ecnu.compiling.compilingmate.lex.entity.StateUnit;
+import ecnu.compiling.compilingmate.lex.entity.StateGraph;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
@@ -52,6 +52,8 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
         String case2 = "n.a*(b|c(x*.y).z).m.p*";
         String result2 = "na*bcx*y.z.|mp*...";
 
+        String case3 = "(a.b*.c)|(a.(b|c*))";
+
         try {
             Method format = (TompsonAnalyzer.class).getDeclaredMethod("toSuffixExpression", String.class);
             format.setAccessible(true);//设为可见
@@ -61,6 +63,8 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
 
             result = (String) format.invoke(lexAnalyzer,case2);
             Assert.assertEquals(result2, result);
+
+            System.out.println((String) format.invoke(lexAnalyzer,case3));
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -73,15 +77,15 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
         String case1 = "a.b";
 
         try {
-            Method format = (TompsonAnalyzer.class).getDeclaredMethod("and", StateUnit.class, StateUnit.class);
+            Method format = (TompsonAnalyzer.class).getDeclaredMethod("and", StateGraph.class, StateGraph.class);
             Method generateSingle = (TompsonAnalyzer.class).getDeclaredMethod("generateSingle", Character.class);
             format.setAccessible(true);//设为可见
             generateSingle.setAccessible(true);
 
-            StateUnit a = (StateUnit) generateSingle.invoke(lexAnalyzer, 'a');
-            StateUnit b = (StateUnit) generateSingle.invoke(lexAnalyzer, 'b');
+            StateGraph a = (StateGraph) generateSingle.invoke(lexAnalyzer, 'a');
+            StateGraph b = (StateGraph) generateSingle.invoke(lexAnalyzer, 'b');
 
-            StateUnit result = (StateUnit) format.invoke(lexAnalyzer,a,b);
+            StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a,b);
 
             State resultStart = result.getStartState();
             State resultEnd = result.getFinalState();
@@ -99,15 +103,15 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
         String case1 = "a|b";
 
         try {
-            Method format = (TompsonAnalyzer.class).getDeclaredMethod("or", StateUnit.class, StateUnit.class);
+            Method format = (TompsonAnalyzer.class).getDeclaredMethod("or", StateGraph.class, StateGraph.class);
             Method generateSingle = (TompsonAnalyzer.class).getDeclaredMethod("generateSingle", Character.class);
             format.setAccessible(true);//设为可见
             generateSingle.setAccessible(true);
 
-            StateUnit a = (StateUnit) generateSingle.invoke(lexAnalyzer, 'a');
-            StateUnit b = (StateUnit) generateSingle.invoke(lexAnalyzer, 'b');
+            StateGraph a = (StateGraph) generateSingle.invoke(lexAnalyzer, 'a');
+            StateGraph b = (StateGraph) generateSingle.invoke(lexAnalyzer, 'b');
 
-            StateUnit result = (StateUnit) format.invoke(lexAnalyzer,a,b);
+            StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a,b);
 
             State resultStart = result.getStartState();
             State resultEnd = result.getFinalState();
@@ -132,14 +136,14 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
         String case1 = "a*";
 
         try {
-            Method format = (TompsonAnalyzer.class).getDeclaredMethod("repeatOrNone", StateUnit.class);
+            Method format = (TompsonAnalyzer.class).getDeclaredMethod("repeatOrNone", StateGraph.class);
             Method generateSingle = (TompsonAnalyzer.class).getDeclaredMethod("generateSingle", Character.class);
             format.setAccessible(true);//设为可见
             generateSingle.setAccessible(true);
 
-            StateUnit a = (StateUnit) generateSingle.invoke(lexAnalyzer, 'a');
+            StateGraph a = (StateGraph) generateSingle.invoke(lexAnalyzer, 'a');
 
-            StateUnit result = (StateUnit) format.invoke(lexAnalyzer,a);
+            StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a);
 
             State resultStart = result.getStartState();
             State resultEnd = result.getFinalState();

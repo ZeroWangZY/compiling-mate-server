@@ -1,32 +1,22 @@
 package ecnu.compiling.compilingmate.lex.entity;
 
 public class StateUnit {
-    private State startState;
-    private State finalState;
+    private StateNode stateNode;
+    private StateGraph stateGraph;
 
-    public StateUnit(State startState, State finalState) {
-        this.startState = startState;
-        this.finalState = finalState;
+    public StateNode getStateNode() {
+        return stateNode;
     }
 
-    public State getStartState() {
-        return startState;
+    public void setStateNode(StateNode stateNode) {
+        this.stateNode = stateNode;
     }
 
-    public void setStartState(State startState) {
-        this.startState = startState;
+    public StateGraph getStateGraph() {
+        return stateGraph;
     }
 
-    public State getFinalState() {
-        return finalState;
-    }
-
-    public void setFinalState(State finalState) {
-        this.finalState = finalState;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder("from-").append(startState.getId()).append("  to=").append(finalState.getId()).toString();
+    public void setStateGraph(StateGraph stateGraph) {
+        this.stateGraph = stateGraph;
     }
 }

@@ -1,9 +1,10 @@
 package ecnu.compiling.compilingmate.lex.analyzer;
 
+import com.google.gson.Gson;
+import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
+import ecnu.compiling.compilingmate.lex.entity.*;
 import ecnu.compiling.compilingmate.lex.utils.LexUtils;
-import ecnu.compiling.compilingmate.lex.entity.State;
-import ecnu.compiling.compilingmate.lex.entity.StateUnit;
-import ecnu.compiling.compilingmate.lex.exception.IllegalInputException;
+import ecnu.compiling.compilingmate.lex.exception.ConstructStateFailureException;
 import ecnu.compiling.compilingmate.lex.exception.ParseFailureException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,16 +16,23 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
     private AtomicInteger stateNumberManager = new AtomicInteger();
 
     @Override
-    public StateUnit process(String input) {
-        // todo catch the exceptions
+    public ReToNfaDto process(String input) {
+
         String suffixExpression = this.toSuffixExpression(input);
 
         if (StringUtils.isEmpty(suffixExpression)){
-            return new StateUnit(null, null);
+            throw new ParseFailureException(String.format(
+                    "Fail to convert input expression into suffix expression. Input:[ %s ]", input));
         }
 
+        Map<Integer, StateGraph> map = new HashMap<>();
+
+        // 构造过程
         Stack<StateUnit> unitStack = new Stack<>();
         for (int i = 0; i < suffixExpression.length(); i++) {
+            StateGraph unit = null;
+            BranchNode node = new BranchNode();
+
             char character = suffixExpression.charAt(i);
 
             if (LexUtils.isNormalCharacter(character)){
@@ -32,14 +40,23 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
                 /**
                  * 一般字符 - a b c 等
                  */
-                unitStack.push(this.generateSingle(character));
+                LeafNode leafNode = new LeafNode(character);
+                node.addChild(leafNode);
+
+                unit = this.generateSingle(character);
 
             } else if (LexUtils.isRepeatOrNone(character)){
 
                 /**
                  * 特殊字符 - *
                  */
-                unitStack.push(this.repeatOrNone(unitStack.pop()));
+                LeafNode leafNode = new LeafNode(character);
+                StateUnit toBeRepeat = unitStack.pop();
+
+                node.addChild(toBeRepeat.getStateNode());
+                node.addChild(leafNode);
+
+                unit = this.repeatOrNone(toBeRepeat.getStateGraph());
 
             } else {
 
@@ -49,28 +66,44 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
                 StateUnit to = unitStack.pop();
                 StateUnit from = unitStack.pop();
 
+                node.addChild(from.getStateNode());
+                node.addChild(to.getStateNode());
+
                 if (LexUtils.isAnd(character)) {
                     /**
                      *  .操作
                      */
-                    unitStack.push(this.and(from, to));
+                    unit = this.and(from.getStateGraph(), to.getStateGraph());
                 } else if (LexUtils.isOr(character)){
                     /**
                      *  |操作
                      */
-                    unitStack.push(this.or(from, to));
+                    unit = this.or(from.getStateGraph(), to.getStateGraph());
                 } else {
-                    throw new IllegalInputException(input);
+                    throw new ConstructStateFailureException(input);
                 }
 
             }
+
+            unit.setRefId(i);
+            node.setRefId(i);
+
+            StateUnit graph = new StateUnit();
+            graph.setStateNode(node);
+            graph.setStateGraph(unit);
+
+            unitStack.push(graph);
+            map.put(i, unit);
         }
 
         if (unitStack.size() != 1){
-            throw new ParseFailureException(input);
+            throw new ParseFailureException(String.format(
+                    "Fail to construct correct NFA states because the unit stack is not empty.\n" +
+                            "StateStack: [ %s ]\n" +
+                            "Input: [%s]", new Gson().toJson(unitStack), input));
         }
 
-        return unitStack.pop();
+        return new ReToNfaDto(unitStack.pop().getStateNode(), map);
     }
 
 
@@ -115,12 +148,13 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
      *
      * @param input
      * @return
-     * @throws IllegalInputException
+     * @throws ConstructStateFailureException
      */
-    private StateUnit generateSingle(Character input) throws IllegalInputException{
-        // and 操作必须后跟字符
+    private StateGraph generateSingle(Character input) throws ConstructStateFailureException {
         if (!LexUtils.isCharacter(input)){
-            throw new IllegalInputException(input);
+            throw new ConstructStateFailureException(
+                    String.format("Input is not a character when generate a single state.\n" +
+                            "Input: [ %s ]", input));
         }
 
         State fromState = getNewState();
@@ -130,7 +164,7 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
 
         nextState.setFinal(true);
 
-        return new StateUnit(fromState, nextState);
+        return new StateGraph(fromState, nextState);
     }
 
     /**
@@ -139,11 +173,14 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
      * @param from
      * @param to
      * @return
-     * @throws IllegalInputException
+     * @throws ConstructStateFailureException
      */
-    private StateUnit and(StateUnit from, StateUnit to) throws IllegalInputException{
+    private StateGraph and(StateGraph from, StateGraph to) throws ConstructStateFailureException {
         if (!isStateUnitAvailable(from) || !isStateUnitAvailable(to)){
-            throw  new IllegalInputException(from, to);
+            throw new ConstructStateFailureException(
+                    String.format("StateUnit is not available.\n" +
+                            "Input: from-[ %s ], to-[ %s ]",
+                            new Gson().toJson(from), new Gson().toJson(to)));
         }
 
         State preFinal = from.getFinalState();
@@ -152,10 +189,13 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
             preFinal.setFinal(false);
             preFinal.addNextWithEmptyInput(postSecond);
         } else {
-            throw new ParseFailureException(from, to);
+            throw new ConstructStateFailureException(
+                    String.format("StateUnit was internal broken.\n" +
+                                    "Input: to-[ %s ]",
+                            new Gson().toJson(to)));
         }
 
-        return new StateUnit(from.getStartState(), to.getFinalState());
+        return new StateGraph(from.getStartState(), to.getFinalState());
     }
 
     /**
@@ -164,11 +204,14 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
      * @param from
      * @param to
      * @return
-     * @throws IllegalInputException
+     * @throws ConstructStateFailureException
      */
-    private StateUnit or(StateUnit from, StateUnit to) throws IllegalInputException{
+    private StateGraph or(StateGraph from, StateGraph to) throws ConstructStateFailureException {
         if (!isStateUnitAvailable(from) || !isStateUnitAvailable(to)){
-            throw  new IllegalInputException(from, to);
+            throw new ConstructStateFailureException(
+                    String.format("StateUnit is not available.\n" +
+                                    "Input: from-[ %s ], to-[ %s ]",
+                            new Gson().toJson(from), new Gson().toJson(to)));
         }
 
         State start = getNewState();
@@ -190,25 +233,28 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
 
         end.setFinal(true);
 
-        return new StateUnit(start, end);
+        return new StateGraph(start, end);
     }
 
     /**
      *  *操作
      *
-     * @param stateUnit
+     * @param stateGraph
      * @return
-     * @throws IllegalInputException
+     * @throws ConstructStateFailureException
      */
-    private StateUnit repeatOrNone(StateUnit stateUnit) throws IllegalInputException{
-        if (!isStateUnitAvailable(stateUnit)){
-            throw  new IllegalInputException(stateUnit);
+    private StateGraph repeatOrNone(StateGraph stateGraph) throws ConstructStateFailureException {
+        if (!isStateUnitAvailable(stateGraph)){
+            throw new ConstructStateFailureException(
+                    String.format("StateUnit is not available.\n" +
+                                    "Input: stateUnit-[ %s ]",
+                            new Gson().toJson(stateGraph)));
         }
 
         State newStart = getNewState();
         State newEnd = getNewState();
-        State oldStart = stateUnit.getStartState();
-        State oldFinal = stateUnit.getFinalState();
+        State oldStart = stateGraph.getStartState();
+        State oldFinal = stateGraph.getFinalState();
 
         newStart.addNextWithEmptyInput(oldStart);
         newStart.addNextWithEmptyInput(newEnd);
@@ -218,7 +264,7 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         oldFinal.addNextWithEmptyInput(oldStart);
         newEnd.setFinal(true);
 
-        return new StateUnit(newStart, newEnd);
+        return new StateGraph(newStart, newEnd);
     }
 
 
@@ -227,8 +273,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         return new State(stateNumberManager.incrementAndGet());
     }
 
-    private boolean isStateUnitAvailable(StateUnit stateUnit){
-        return stateUnit != null && stateUnit.getStartState() != null && stateUnit.getFinalState() != null;
+    private boolean isStateUnitAvailable(StateGraph stateGraph){
+        return stateGraph != null && stateGraph.getStartState() != null && stateGraph.getFinalState() != null;
     }
 
 }

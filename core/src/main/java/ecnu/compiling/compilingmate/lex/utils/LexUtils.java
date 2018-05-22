@@ -2,8 +2,6 @@ package ecnu.compiling.compilingmate.lex.utils;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.entity.State;
-import ecnu.compiling.compilingmate.lex.entity.StateUnit;
-import ecnu.compiling.compilingmate.lex.exception.BadUserInputException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Stack;
@@ -59,15 +57,15 @@ public final class LexUtils {
         return LexConstants.SpecialCharacter.EMPTY.equals(input);
     }
 
-    public static boolean isBracket(Character input) throws BadUserInputException{
+    public static boolean isBracket(Character input){
         return isBracketStart(input) || isBracketEnd(input);
     }
 
-    public static boolean isBracketStart(Character input) throws BadUserInputException{
+    public static boolean isBracketStart(Character input){
         return LexConstants.Operator.BRACKET_START.equals(input);
     }
 
-    public static boolean isBracketEnd(Character input) throws BadUserInputException{
+    public static boolean isBracketEnd(Character input){
         return LexConstants.Operator.BRACKET_END.equals(input);
     }
 
@@ -83,7 +81,7 @@ public final class LexUtils {
                 bracketStartIndexes.push(i);
             } else if (LexConstants.Operator.BRACKET_END.equals(input.charAt(i))){
                 if (bracketStartIndexes.isEmpty()){
-                    throw new BadUserInputException(input);
+                    return false;
                 }
 
                 bracketStartIndexes.pop();
