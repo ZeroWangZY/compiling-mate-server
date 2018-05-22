@@ -87,24 +87,14 @@
             "in": "body",
             "required": true,
             "type": "string",
-            "example": "cfg schema待定"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/ParsingProcessingOutputData"
-            },
             "example": {
               "code": 0,
               "message": null,
               "data": {
                 "treeSteps": [
-                { "type": "add", "node": {"id": "0", "relatedTo": null, "linkInfo": null, "text": "0", "productionLeft":["E'","E","T","T","F","F"],"productionRight":[".E",".E+T",".T",".T*F",".F",".(E)",".id"]} },
-                { "type": "add", "node": {"id": "1", "relatedTo": "0", "linkInfo": "E", "text": "1", "productionLeft":["E'","E"],"productionRight":["E.","E.+T"]} },
-                { "type": "add", "node": {"id": "2", "relatedTo": "0", "linkInfo": "T", "text": "2", "productionLeft":["E","T"],"productionRight":["T.","T.*F"]} }
-                
+                  { "type": "add", "node": {"id": "0", "relatedTo": null, "linkInfo": null, "text": "0", "productionLeft":["E'","E","T","T","F","F"],"productionRight":[".E",".E+T",".T",".T*F",".F",".(E)",".id"]} },
+                  { "type": "add", "node": {"id": "1", "relatedTo": "0", "linkInfo": "E", "text": "1", "productionLeft":["E'","E"],"productionRight":["E.","E.+T"]} },
+                  { "type": "add", "node": {"id": "2", "relatedTo": "0", "linkInfo": "T", "text": "2", "productionLeft":["E","T"],"productionRight":["T.","T.*F"]} }
                 ],
                 "symbols": ["id","+","*","(",")","$","E","T", "F"],
                 "parseTable": [    
@@ -115,6 +105,14 @@
                   ["s5","","","s4","","","8","2","3"]
                 ]
               }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ParsingProcessingOutputData"
             }
           }
         }
