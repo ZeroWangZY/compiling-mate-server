@@ -1,0 +1,174 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "这里是compiling-mate的API信息",
+    "version": "2.3.1",
+    "title": "compiling-mate API"
+  },
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "lex"
+    },
+    {
+      "name": "sytax"
+    }
+  ],
+  "paths": {
+    "/lex/tokens": {
+      "post": {
+        "tags": [
+          "lex"
+        ],
+        "summary": "给定RE集和input，获得该string的token序列",
+        "description": "",
+        "operationId": "getTokens",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "type": "LexInputData",
+            "schema": {
+              "$ref": "#/definitions/LexInputData"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/LexOutputData"
+            }
+          }
+        }
+      }
+    },
+    "/lex/reProcessingOutput": {
+      "get": {
+        "tags": ["lex"],
+        "summary": "给定RE, 获得算法处理该RE的过程数据",
+        "description": "",
+        "operationId": "getReProcessingOutput",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "re",
+            "in": "body",
+            "required": true,
+            "type": "string",
+            "example": "a*b."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ReProcessingOutputData"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {   
+    "LexInputData": {
+      "description": "向词法分析器输入的数据",
+      "type": "object",
+      "properties": {
+        "inputCode": {
+          "type": "string",
+          "example": "int a = 10; \n\r a + 1;",
+          "description": "向词法分析器输入的源代码"
+        },
+        "reDefs": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/ReDef"}
+        }
+      },
+      "required": ["inputCode", "refDefs"]
+    },
+    "LexOutputData": {
+      "description": "词法器接受数据后返回的数据",
+      "type": "object",
+      "properties": {
+        "tokens": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Token"}
+        },
+        "info": {
+          "type": "string",
+          "example": "scanning success"
+        }
+      },
+      "required": ["token"]
+    },
+    "Token": {
+      "type": "object",
+      "properties": {
+        "tokenType": {
+          "type": "string",
+          "example": "NUMBER",
+          "description": "token的类型"
+        },
+        "lexeme": {
+          "type": "string",
+          "example": "21",
+          "description": "该token的内容"
+        },
+        "line": {
+          "type": "integer",
+          "example": "2",
+          "format": "int64",
+          "description": "该token所在的行号，便于未来增加错误提醒"
+        }
+      },
+      "required": [
+        "tokenType"
+      ],
+      "description": "词法分析器的output"
+    },
+    "ReDef": {
+      "type": "object",
+      "properties": {
+        "tokenType": {
+          "type": "string",
+          "example": "OPT",
+          "description": "该RE所对应的token类型"
+        },
+        "RE": {
+          "type": "string",
+          "example": "a*b.c",
+          "description": "正则表达式"
+        }
+      },
+      "required": ["tokenType", "RE"]
+    },
+    "DfaGraph": {
+      "type": "string",
+      "example": "这是一个图，图的结构待定"
+    },
+    "NfaGraph": {
+      "type": "string",
+      "example": "这是一个图，图的结构待定"
+    },
+    "ReProcessingOutputData": {
+      "type": "object",
+      "properties": {
+        "reToNfaData": {
+          "type":"array",
+          "items": {"$ref": "#/definitions/NfaGraph"}
+        },
+        "thompsonData": {
+          "type":"array",
+          "items": {"$ref": "#/definitions/DfaGraph"}
+        }
+      }
+    }
+  }
+}
