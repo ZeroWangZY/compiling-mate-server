@@ -86,7 +86,15 @@
             "name": "cfg",
             "in": "body",
             "required": true,
-            "type": "string",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/ParsingProcessingOutputData"
+            },
             "example": {
               "code": 0,
               "message": null,
@@ -105,14 +113,6 @@
                   ["s5","","","s4","","","8","2","3"]
                 ]
               }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "success",
-            "schema": {
-              "$ref": "#/definitions/ParsingProcessingOutputData"
             }
           }
         }
