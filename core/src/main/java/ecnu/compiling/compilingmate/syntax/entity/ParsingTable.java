@@ -1,4 +1,4 @@
-package ecnu.compiling.compilingmate.entity;
+package ecnu.compiling.compilingmate.syntax.entity;
 
 import java.util.ArrayList;
 import java.util.List;

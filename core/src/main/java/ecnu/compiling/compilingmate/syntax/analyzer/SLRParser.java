@@ -1,11 +1,11 @@
-package ecnu.compiling.compilingmate.analyzer;
+package ecnu.compiling.compilingmate.syntax.analyzer;
 
-import ecnu.compiling.compilingmate.entity.*;
-import ecnu.compiling.compilingmate.utils.Utils;
+import ecnu.compiling.compilingmate.syntax.entity.*;
+import ecnu.compiling.compilingmate.syntax.utils.Utils;
 
 import java.util.*;
 
-import static ecnu.compiling.compilingmate.utils.Utils.follow;
+import static ecnu.compiling.compilingmate.syntax.utils.Utils.follow;
 
 public class SLRParser {
     public void parsing(String[] input, List<ProductionLR0> productions,List<String> t,List<String> ntList) {
@@ -45,7 +45,7 @@ public class SLRParser {
                 gotoList.add(new Goto(itemList.indexOf(curItem), itemList.indexOf(entry.getValue()), entry.getKey()));
             }
         }
-        
+
 
         //2.填表
         System.out.println("--------follow集--------");
@@ -57,8 +57,8 @@ public class SLRParser {
         for(Item item:itemList){
             //shift j
             for(Goto gotoUnit:gotoList){
-                if(gotoUnit.beginIndex==itemList.indexOf(item)){
-                    actionTable.setTable(gotoUnit.endIndex,1,itemList.indexOf(item),gotoUnit.x);
+                if(gotoUnit.getBeginIndex()==itemList.indexOf(item)){
+                    actionTable.setTable(gotoUnit.getEndIndex(),1,itemList.indexOf(item),gotoUnit.getX());
                 }
             }
             //reduce
