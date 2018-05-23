@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class Production {
-    public String left;
-    public String[] right;
+    protected String left;
+    protected String[] right;
 
     public Production(String left, String[] right) {
         this.left = left;
@@ -35,6 +35,12 @@ public class Production {
     }
 
 
+    public String getLeft() {
+        return left;
+    }
 
+    public String[] getRight() {
+        return right;
+    }
 
 }

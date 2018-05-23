@@ -3,10 +3,14 @@ package ecnu.compiling.compilingmate.syntax.entity;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ProductionLR0 extends Production {
-    public int pos;
-    public ProductionLR0(String left, String[] right,int pos) {
+public class LR0Item extends Production {
+    protected int pos;
+    public LR0Item(String left, String[] right, int pos) {
         super(left,right);
+        this.pos=pos;
+    }
+    public LR0Item(Production production) {
+        super(production.left,production.right);
         this.pos=pos;
     }
 
@@ -18,7 +22,7 @@ public class ProductionLR0 extends Production {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ProductionLR0 other=(ProductionLR0) obj;
+        LR0Item other=(LR0Item) obj;
         if(!other.left.equals(left))
             return false;
         else if(other.pos!=this.pos)
@@ -41,6 +45,10 @@ public class ProductionLR0 extends Production {
             s+=right[i];
         }
         return s;
+    }
+
+    public int getPos(){
+        return pos;
     }
 
 }

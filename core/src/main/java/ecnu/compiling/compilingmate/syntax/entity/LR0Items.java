@@ -4,18 +4,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class Item {
-    Map<ProductionLR0,Integer> closure;
-    public Item(){
+public class LR0Items {
+    protected Map<LR0Item,Integer> closure;
+
+    public LR0Items(){
         closure=new LinkedHashMap<>();
         closure=new LinkedHashMap<>();
     }
 
-    public void addProduction(ProductionLR0 p,int pos){
+    public void addProduction(LR0Item p, int pos){
         closure.put(p,pos);
     }
 
-    public Map<ProductionLR0,Integer> getClosure(){
+    public Map<LR0Item,Integer> getClosure(){
         return closure;
     }
 
@@ -27,12 +28,12 @@ public class Item {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Item other = (Item) obj;
-        Map<ProductionLR0,Integer> otherClo=other.getClosure();
+        LR0Items other = (LR0Items) obj;
+        Map<LR0Item,Integer> otherClo=other.getClosure();
         if(otherClo.size()!=closure.size()){
             return false;
         }
-        for(Map.Entry<ProductionLR0,Integer> entry : closure.entrySet()){
+        for(Map.Entry<LR0Item,Integer> entry : closure.entrySet()){
             if(!otherClo.containsKey(entry.getKey())){
                 return false;
             }
