@@ -1,7 +1,7 @@
-package ecnu.compiling.compilingmate.utils;
+package ecnu.compiling.compilingmate.syntax.utils;
 
-import ecnu.compiling.compilingmate.entity.Item;
-import ecnu.compiling.compilingmate.entity.ProductionLR0;
+import ecnu.compiling.compilingmate.syntax.entity.Item;
+import ecnu.compiling.compilingmate.syntax.entity.ProductionLR0;
 
 import java.util.*;
 

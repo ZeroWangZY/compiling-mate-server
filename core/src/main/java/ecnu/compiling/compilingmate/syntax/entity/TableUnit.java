@@ -1,4 +1,4 @@
-package ecnu.compiling.compilingmate.entity;
+package ecnu.compiling.compilingmate.syntax.entity;
 
 public class TableUnit {
     public int number;

@@ -1,4 +1,4 @@
-package ecnu.compiling.compilingmate.entity;
+package ecnu.compiling.compilingmate.syntax.entity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
