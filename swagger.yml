@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: compiling-mate API
+  description: 这里是compiling-mate的API信息
+  version: 2.3.1
+servers:
+  - url: /api
+tags:
+  - name: lex
+  - name: syntax
+paths:
+  /lex/scan:
+    post:
+      tags:
+        - lex
+      summary: 给定RE集和input，获得该string的token序列
+      operationId: getTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LexInputData'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LexOutputData'
+  /lex/reProcessingOutput:
+    post:
+      tags:
+        - lex
+      summary: 给定RE, 获得算法处理该RE的过程数据
+      operationId: getReProcessingOutput
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: 'a*b'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReProcessingOutputData'
+  /syntax/parsingProcessingOutput:
+    post:
+      tags:
+        - syntax
+      summary: 给定CFG, 获得产生parsing table的过程
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  data:
+                    $ref: '#/components/schemas/ParsingProcessingOutputData'
+                  message:
+                    type: string
+                    example: ''
+components:
+  schemas:
+    LexInputData:
+      type: object
+      description: 向词法分析器输入的数据
+      properties:
+        inputCode:
+          type: string
+          description: 向词法分析器输入的源代码
+          example: 'int a = 10; \n\r a + 1;'
+        reDefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReDef'
+      required:
+        - inputCode
+        - reDefs
+    LexOutputData:
+      type: object
+      description: 词法器接受数据后返回的数据
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        info:
+          type: string
+          example: 'scanning success'
+      required:
+        - tokens
+    Token:
+      type: object
+      description: 词法分析器的output
+      properties:
+        tokenType:
+          type: string
+          description: token的类型
+          example: 'IDENTIFIER'
+        lexeme:
+          type: string
+          description: 该token的文字
+          example: 'counter'
+        literal:
+          type: string
+          description: 该token的值
+          example: '13'
+        line:
+          type: integer
+          description: 该token所在的行号，便于未来增加错误提醒
+          format: int64
+          example: 2
+      required:
+        - tokenType
+    ReDef:
+      type: object
+      properties:
+        tokenType:
+          type: string
+          description: 该RE所对应的token类型
+          example: 'OPT'
+        RE:
+          type: string
+          description: 正则表达式
+          example: 'a*b.c'
+      required:
+        - tokenType
+        - RE
+    DfaGraph:
+      type: string
+      example: '这是一个图，图的结构待定'
+    NfaGraph:
+      type: string
+      example: '这是一个图，图的结构待定'
+    ReProcessingOutputData:
+      type: object
+      properties:
+        reToNfaData:
+          type: array
+          items:
+            $ref: '#/components/schemas/NfaGraph'
+        thompsonData:
+          type: array
+          items:
+            $ref: '#/components/schemas/DfaGraph'
+    ParsingProcessingOutputData:
+      type: object
+      properties:
+        treeSteps:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeInfo'
+          example:
+            - type: add
+              node:
+                id: '0'
+                relatedTo: null
+                linkInfo: null
+                text: '0'
+                productionLeft:
+                  - E'
+                  - E
+                  - T
+                  - T
+                  - F
+                  - F
+                productionRight:
+                  - .E
+                  - .E+T
+                  - .T
+                  - .T*F
+                  - .F
+                  - .(E)
+                  - .id
+            - type: add
+              node:
+                id: '1'
+                relatedTo: '0'
+                linkInfo: E
+                text: '1'
+                productionLeft:
+                  - E'
+                  - E
+                productionRight:
+                  - E.
+                  - E.+T
+            - type: add
+              node:
+                id: '2'
+                relatedTo: '0'
+                linkInfo: T
+                text: '2'
+                productionLeft:
+                  - E
+                  - T
+                productionRight:
+                  - T.
+                  - T.*F
+        symbols:
+          type: array
+          items:
+            type: string
+          example:
+            - id
+            - +
+            - '*'
+            - (
+            - )
+            - $
+            - E
+            - T
+            - F
+        parseTable:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+      example:
+        - - s5
+          - ''
+          - ''
+          - s4
+          - ''
+          - ''
+          - '1'
+          - '2'
+          - '3'
+        - - ''
+          - s6
+          - ''
+          - ''
+          - ''
+          - acc
+          - ''
+          - ''
+          - ''
+        - - ''
+          - r2
+          - s7
+          - ''
+          - r2
+          - r2
+          - ''
+          - ''
+          - ''
+        - - ''
+          - r4
+          - r4
+          - ''
+          - r4
+          - r4
+          - ''
+          - ''
+          - ''
+        - - s5
+          - ''
+          - ''
+          - s4
+          - ''
+          - ''
+          - '8'
+          - '2'
+          - '3'
+    NodeEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+        node:
+          $ref: '#/components/schemas/NodeInfo'
+    NodeInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '0'
+        relatedTo:
+          type: string
+          example: '0'
+        linkInfo:
+          type: string
+          example: E
+        text:
+          type: string
+          example: '0'
+        productionLeft:
+          type: array
+          items:
+            type: string
+          example:
+            - E'
+            - E
+            - T
+            - T
+            - F
+            - F
+        productionRight:
+          type: array
+          items:
+            type: string
+          example:
+            - .E
+            - .E+T
+            - .T
+            - .T*F
+            - .F
+            - .(E)
+            - .id
+    FaState:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        nextInput:
+          type: string
+          example: c
+          maxLength: 1
+        nextState:
+          $ref: '#/components/schemas/FaState'
+        nextStateWhenEmptyInput:
+          type: array
+          items:
+            $ref: '#/components/schemas/FaState'
+        isFinal:
+          type: boolean
+          example: false
