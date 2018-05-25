@@ -40,7 +40,7 @@ paths:
           text/plain:
             schema:
               type: string
-              example: 'a*b'
+              example: 'abc'
       responses:
         '200':
           description: success
@@ -145,14 +145,70 @@ components:
     ReProcessingOutputData:
       type: object
       properties:
-        reToNfaData:
+        thompsonData:
+          type: object
+          properties:
+            reTree:
+              type: object
+              properties:
+                id:
+                  example: 0
+                name:
+                  example: r0
+                children:
+                  example: 
+                    - id: 1
+                      name: r1
+                      children:
+                        - id: 2
+                          name: a
+                        - id: 3
+                          name: b
+                    - id: 4
+                      name: r2
+            nfaMap:
+              type: object
+              example: 
+                0: 
+                  nodes:
+                    - id: 0
+                      name: 0
+                      isStart: true
+                      isEnd: false
+                    - id: 1
+                      nmae: 1
+                      isStart: false
+                      isEnd: false
+                  links:
+                    - from: 0
+                      to: 1
+                      tag: a
+                1: 
+                  nodes:
+                    - id: 0
+                      name: 0
+                      isStart: true
+                      isEnd: false
+                    - id: 1
+                      nmae: 1
+                      isStart: false
+                      isEnd: false
+                    - id: 2
+                      name: 2
+                      isStart: false
+                      isEnd: true
+                  links:
+                    - from: 0
+                      to: 1
+                      tag: a
+                    - from: 1
+                      to: 2
+                      tag: b
+        nfaToDfaData:
           type: array
           items:
             $ref: '#/components/schemas/NfaGraph'
-        thompsonData:
-          type: array
-          items:
-            $ref: '#/components/schemas/DfaGraph'
+      
     ParsingProcessingOutputData:
       type: object
       properties:
