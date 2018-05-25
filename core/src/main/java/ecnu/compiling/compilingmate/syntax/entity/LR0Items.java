@@ -1,6 +1,7 @@
 package ecnu.compiling.compilingmate.syntax.entity;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,6 +48,11 @@ public class LR0Items {
     @Override
     public int hashCode(){
         return Objects.hash(closure);
+    }
+
+    @Override
+    public String toString(){
+        return closure.keySet().toString();
     }
 
 }

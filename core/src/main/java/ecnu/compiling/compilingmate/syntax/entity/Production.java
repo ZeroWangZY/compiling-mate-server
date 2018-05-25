@@ -18,8 +18,6 @@ public class Production {
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
-            return false;
         Production other=(Production)obj;
         if(!other.left.equals(left))
             return false;
@@ -32,6 +30,15 @@ public class Production {
     @Override
     public int hashCode(){
         return Objects.hash(left,right);
+    }
+
+    @Override
+    public String toString(){
+        String s=left+"->";
+        for(int i=0;i<right.length;i++){
+            s+=right[i];
+        }
+        return s;
     }
 
 

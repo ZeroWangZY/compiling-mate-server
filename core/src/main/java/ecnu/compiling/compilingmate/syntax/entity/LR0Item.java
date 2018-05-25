@@ -9,7 +9,7 @@ public class LR0Item extends Production {
         super(left,right);
         this.pos=pos;
     }
-    public LR0Item(Production production) {
+    public LR0Item(Production production,int pos) {
         super(production.left,production.right);
         this.pos=pos;
     }
@@ -42,7 +42,13 @@ public class LR0Item extends Production {
     public String toString(){
         String s=left+"->";
         for(int i=0;i<right.length;i++){
+            if(i==pos){
+                s+=".";
+            }
             s+=right[i];
+        }
+        if(pos==right.length){
+            s+=".";
         }
         return s;
     }

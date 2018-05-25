@@ -8,24 +8,24 @@ import java.util.*;
 import static ecnu.compiling.compilingmate.syntax.utils.Utils.follow;
 
 public class SLRParser {
-    public void parsing(String[] input, List<LR0Item> productions, List<String> t, List<String> ntList) {
+    public void parsing(String[] input, List<Production> productions, List<String> t, List<String> ntList) {
 
         //计算items
         List<LR0Items> itemList = new ArrayList<>(); //记录最终items
         List<Goto> gotoList=new ArrayList<>(); //goto(begin,end,X)
         //设置初始状态I0
         LR0Items i0=new LR0Items();
-        for(LR0Item p:productions){
+        for(Production p:productions){
             i0.addProduction(new LR0Item(p.getLeft(),p.getRight(),0),0);
         }
         itemList.add(i0);
-        Queue<LR0Items> waitingItems=new LinkedList<>(); //BFS，用队列记录待识别的项
+        Queue<LR0Items> waitingItems=new LinkedList<>(); //BFS，用队列记录待寻找closure的项
         waitingItems.offer(i0);
 
         while(!waitingItems.isEmpty()) {
             LR0Items curItem=waitingItems.poll();
-            //遍历当前item中的Prod
-            Map<String, LR0Items> temp = new LinkedHashMap<>(); //NT,从当前item开始的gotoItemTemp
+            // 遍历当前items中的Production
+            Map<String, LR0Items> temp = new LinkedHashMap<>(); // < NT,从当前item开始的gotoItemTemp >
             for (LR0Item p : curItem.getClosure().keySet()) {
                 if(curItem.getClosure().get(p)<p.getRight().length) {
                     if (!temp.containsKey(p.getRight()[curItem.getClosure().get(p)])) {
@@ -35,7 +35,7 @@ public class SLRParser {
                 }
             }
 
-            //得到goto(I,X)，当前item可达的items
+            // find goto(I,X)，得到当前items可达的items
             for (Map.Entry<String, LR0Items> entry : temp.entrySet()) {
                 Utils.findClosure(entry.getValue(), t, productions);
                 if (!itemList.contains(entry.getValue())) {
@@ -45,6 +45,10 @@ public class SLRParser {
                 gotoList.add(new Goto(itemList.indexOf(curItem), itemList.indexOf(entry.getValue()), entry.getKey()));
             }
         }
+        for(LR0Items lr0Item:itemList){
+            System.out.println(lr0Item);
+        }
+        System.out.println(gotoList);
 
 
         //2.填表
@@ -63,11 +67,11 @@ public class SLRParser {
             }
             //reduce
             for(LR0Item p:item.getClosure().keySet()){
-                if(p.getPos()==p.getRight().length && !p.getLeft().equals("E'")){
+                if(p.getPos()==p.getRight().length && !p.getLeft().equals("E'")){ // A->a.
                     List<String> follow=follow(p.getLeft(),productions,"E'",t);
                     for(String terminal:t){
                         if(follow.contains(terminal)){
-                            actionTable.setTable(productions.indexOf(new LR0Item(p.getLeft(),p.getRight(),0)),0,itemList.indexOf(item),terminal);
+                            actionTable.setTable(productions.indexOf(new Production(p.getLeft(),p.getRight())),0,itemList.indexOf(item),terminal);
                         }
                     }
                 }

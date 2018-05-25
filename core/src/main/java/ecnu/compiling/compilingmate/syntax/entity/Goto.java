@@ -16,7 +16,7 @@ public class Goto {
 
     @Override
     public String toString(){
-        return "LR0Items"+beginIndex+"--"+x+"->"+endIndex;
+        return beginIndex+"--"+x+"->"+endIndex;
     }
 
     public int getBeginIndex() {
