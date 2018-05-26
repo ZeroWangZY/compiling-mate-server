@@ -78,11 +78,19 @@ components:
         inputCode:
           type: string
           description: 向词法分析器输入的源代码
-          example: 'int a = 10; \n\r a + 1;'
+          example: 'int a = 10;'
         reDefs:
-          type: array
-          items:
-            $ref: '#/components/schemas/ReDef'
+          example:
+            - re: int
+              tokenType: INT
+            - re: "[a-z]|[A-Z]|_([a-z]|[A-Z]|_|[0-9])*"
+              tokenType: IDENTIFIER
+            - re: =
+              tokenType: EQUEL
+            - re: "[0-9][0-9]*"
+              tokenType: NUMBER
+            - re: ;
+              tokenType: SEMICOLON
       required:
         - inputCode
         - reDefs
@@ -91,51 +99,28 @@ components:
       description: 词法器接受数据后返回的数据
       properties:
         tokens:
-          type: array
-          items:
-            $ref: '#/components/schemas/Token'
+          example:
+            - tokenType: INT
+              lexeme: int
+              line: 1
+            - tokenType: IDENTIFIER
+              lexeme: a
+              line: 1
+            - tokenType: EQUEL
+              lexeme: =
+              line: 1
+            - tokenType: NUMBER
+              lexeme: 10
+              line: 1
+            - tokenType: SEMICOLON
+              lexeme: ;
+              line: 1
         info:
           type: string
           example: 'scanning success'
       required:
         - tokens
-    Token:
-      type: object
-      description: 词法分析器的output
-      properties:
-        tokenType:
-          type: string
-          description: token的类型
-          example: 'IDENTIFIER'
-        lexeme:
-          type: string
-          description: 该token的文字
-          example: 'counter'
-        literal:
-          type: string
-          description: 该token的值
-          example: '13'
-        line:
-          type: integer
-          description: 该token所在的行号，便于未来增加错误提醒
-          format: int64
-          example: 2
-      required:
-        - tokenType
-    ReDef:
-      type: object
-      properties:
-        tokenType:
-          type: string
-          description: 该RE所对应的token类型
-          example: 'OPT'
-        RE:
-          type: string
-          description: 正则表达式
-          example: 'a*b.c'
-      required:
-        - tokenType
-        - RE
+
     ReProcessingOutputData:
       type: object
       properties:
@@ -451,22 +436,3 @@ components:
             - .F
             - .(E)
             - .id
-    FaState:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        nextInput:
-          type: string
-          example: c
-          maxLength: 1
-        nextState:
-          $ref: '#/components/schemas/FaState'
-        nextStateWhenEmptyInput:
-          type: array
-          items:
-            $ref: '#/components/schemas/FaState'
-        isFinal:
-          type: boolean
-          example: false
