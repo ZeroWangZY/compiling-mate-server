@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: compiling-mate API
   description: 这里是compiling-mate的API信息
-  version: 2.3.1
+  version: 0.0.1
 servers:
   - url: /api
 tags:
@@ -136,12 +136,6 @@ components:
       required:
         - tokenType
         - RE
-    DfaGraph:
-      type: string
-      example: '这是一个图，图的结构待定'
-    NfaGraph:
-      type: string
-      example: '这是一个图，图的结构待定'
     ReProcessingOutputData:
       type: object
       properties:
@@ -156,7 +150,7 @@ components:
                 name:
                   example: r0
                 children:
-                  example: 
+                  example:
                     - id: 1
                       name: r1
                       children:
@@ -168,8 +162,8 @@ components:
                       name: r2
             nfaMap:
               type: object
-              example: 
-                0: 
+              example:
+                0:
                   nodes:
                     - id: 0
                       name: 0
@@ -183,7 +177,7 @@ components:
                     - from: 0
                       to: 1
                       tag: a
-                1: 
+                1:
                   nodes:
                     - id: 0
                       name: 0
@@ -205,10 +199,86 @@ components:
                       to: 2
                       tag: b
         nfaToDfaData:
-          type: array
-          items:
-            $ref: '#/components/schemas/NfaGraph'
-      
+          type: object
+          example:
+            dfa:
+              nodes:
+              links:
+            states:
+              -
+                - 0
+                - 1
+                - 2
+                - 4
+                - 7
+              -
+                - 1
+                - 2
+                - 3
+                - 4
+                - 6
+                - 7
+                - 8
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 6
+                - 7
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 7
+                - 9
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 6
+                - 7
+                - 10
+            endStates:
+              - 4
+            epsilonClosureMovingTable:
+              - moveFrom: -1
+                moveBy: ε
+                moveTo: 0
+              - moveFrom: 0
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 0
+                moveBy: b
+                moveTo: 2
+              - moveFrom: 1
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 1
+                moveBy: b
+                moveTo: 3
+              - moveFrom: 2
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 2
+                moveBy: b
+                moveTo: 2
+              - moveFrom: 3
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 3
+                moveBy: b
+                moveTo: 4
+              - moveFrom: 4
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 4
+                moveBy: b
+                moveTo: 2
+
+
     ParsingProcessingOutputData:
       type: object
       properties:
