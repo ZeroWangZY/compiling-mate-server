@@ -1,14 +1,17 @@
 package ecnu.compiling.compilingmate.lex.entity;
 
+import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
+import ecnu.compiling.compilingmate.lex.entity.tree.StateTreeNode;
+
 public class StateUnit {
-    private StateNode stateNode;
+    private StateTreeNode stateNode;
     private StateGraph stateGraph;
 
-    public StateNode getStateNode() {
+    public StateTreeNode getStateNode() {
         return stateNode;
     }
 
-    public void setStateNode(StateNode stateNode) {
+    public void setStateNode(StateTreeNode stateNode) {
         this.stateNode = stateNode;
     }
 

@@ -8,4 +8,6 @@ public class BadUserInputException extends RuntimeException {
         super(String.format("bad user input : %s", input));
         this.input = input;
     }
+
+
 }

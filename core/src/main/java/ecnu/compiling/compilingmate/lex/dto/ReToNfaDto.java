@@ -1,8 +1,9 @@
 package ecnu.compiling.compilingmate.lex.dto;
 
-import ecnu.compiling.compilingmate.lex.entity.StateNode;
-import ecnu.compiling.compilingmate.lex.entity.StateGraph;
+import ecnu.compiling.compilingmate.lex.entity.tree.StateTreeNode;
+import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,33 +13,33 @@ public class ReToNfaDto {
     /**
      * 树状图根节点
      */
-    private StateNode root;
+    private StateTreeNode root;
     /**
      * 节点编号和对应图的映射关系
      */
-    private Map<Integer, StateGraph> graphMap;
+    private List<StateGraph> graphs;
 
     public ReToNfaDto() {
     }
 
-    public ReToNfaDto(StateNode root, Map<Integer, StateGraph> graphMap) {
+    public ReToNfaDto(StateTreeNode root, List<StateGraph> graphs) {
         this.root = root;
-        this.graphMap = graphMap;
+        this.graphs = graphs;
     }
 
-    public StateNode getRoot() {
+    public StateTreeNode getRoot() {
         return root;
     }
 
-    public void setRoot(StateNode root) {
+    public void setRoot(StateTreeNode root) {
         this.root = root;
     }
 
-    public Map<Integer, StateGraph> getGraphMap() {
-        return graphMap;
+    public List<StateGraph> getGraphs() {
+        return graphs;
     }
 
-    public void setGraphMap(Map<Integer, StateGraph> graphMap) {
-        this.graphMap = graphMap;
+    public void setGraphs(List<StateGraph> graphs) {
+        this.graphs = graphs;
     }
 }
