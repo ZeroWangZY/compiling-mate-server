@@ -1,6 +1,5 @@
 package ecnu.compiling.compilingmate.lex.entity.graph;
 
-import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.entity.Token;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -8,13 +7,13 @@ import java.util.*;
 
 public class StateGraph implements Cloneable {
 
-    private Set<State> states;
+    private Set<NfaState> states;
 
     private List<Edge> edges;
 
     private Integer refId;
-    private State startState;
-    private State finalState;
+    private NfaState startState;
+    private NfaState finalState;
 
     public StateGraph() {
         states = new HashSet<>();
@@ -22,7 +21,7 @@ public class StateGraph implements Cloneable {
     }
 
     public void addAll(StateGraph graph){
-        for (State state : graph.states) {
+        for (NfaState state : graph.states) {
             this.addState(state);
         }
 
@@ -31,7 +30,7 @@ public class StateGraph implements Cloneable {
         }
     }
 
-    public void addState(State state){
+    public void addState(NfaState state){
         states.add(state);
     }
 
@@ -43,7 +42,7 @@ public class StateGraph implements Cloneable {
         edges.add(edge);
     }
 
-    public void deleteState(State state){
+    public void deleteState(NfaState state){
         states.remove(state);
         edges.removeIf(e -> e.getFrom().equals(state.getId()) ||
                 e.getTo().equals(state.getId()));
@@ -67,23 +66,23 @@ public class StateGraph implements Cloneable {
         this.refId = refId;
     }
 
-    public State getStartState() {
+    public NfaState getStartState() {
         return startState;
     }
 
-    public void setStartState(State startState) {
+    public void setStartState(NfaState startState) {
         this.startState = startState;
     }
 
-    public State getFinalState() {
+    public NfaState getFinalState() {
         return finalState;
     }
 
-    public void setFinalState(State finalState) {
+    public void setFinalState(NfaState finalState) {
         this.finalState = finalState;
     }
 
-    public Set<State> getStates() {
+    public Set<NfaState> getStates() {
         return states;
     }
 
@@ -103,8 +102,8 @@ public class StateGraph implements Cloneable {
             copy = (StateGraph) super.clone();
 
             copy.states = new HashSet<>();
-            for (State state : this.states) {
-                State newState = state.clone();
+            for (NfaState state : this.states) {
+                NfaState newState = state.clone();
                 copy.states.add(newState);
                 if (newState.isStart()){
                     copy.setStartState(newState);
@@ -119,19 +118,19 @@ public class StateGraph implements Cloneable {
                 copy.edges.add(edge.clone());
             }
 
-            for (State state : copy.states) {
+            for (NfaState state : copy.states) {
                 if (state.getNextInput() != null) {
-                    State fakeNext = state.getNextState(state.getNextInput());
+                    NfaState fakeNext = state.getNextState(state.getNextInput());
 
-                    for (State nextState : copy.states){
+                    for (NfaState nextState : copy.states){
                         if (nextState.getId().equals(fakeNext.getId())){
                             state.addNext(state.getNextInput(), nextState);
                             break;
                         }
                     }
                 } else if (!CollectionUtils.isEmpty(state.getNextStatesWhenEmptyInput())){
-                    for (State fakeNext : state.getNextStatesWhenEmptyInput()) {
-                        for (State nextState : copy.states){
+                    for (NfaState fakeNext : state.getNextStatesWhenEmptyInput()) {
+                        for (NfaState nextState : copy.states){
                             if (nextState.getId().equals(fakeNext.getId())){
                                 state.addNextWithEmptyInput(nextState);
                                 break;

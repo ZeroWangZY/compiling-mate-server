@@ -1,5 +1,6 @@
 package ecnu.compiling.compilingmate.lex.policy.rule;
 
+import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.entity.Token;
 
 import java.util.HashSet;
@@ -15,11 +16,22 @@ public abstract class Rule {
 
     private Set<Token> breakers;
 
+    private Token emptyInput;
+
     public Rule() {
         operators = new HashSet<>();
         normalCharacters = new HashSet<>();
         specialCharacters = new HashSet<>();
         breakers = new HashSet<>();
+        emptyInput = LexConstants.EMPTY;
+    }
+
+    public Token getEmptyInput() {
+        return emptyInput;
+    }
+
+    public void setEmptyInput(Token emptyInput) {
+        this.emptyInput = emptyInput;
     }
 
     public void addOperator(Token token){
@@ -72,6 +84,10 @@ public abstract class Rule {
 
     public boolean isBreaker(String token){
         return this.breakers.contains(new Token(token));
+    }
+
+    public boolean isEmptyCharacter(Token token){
+        return this.emptyInput.equals(token);
     }
 
     public boolean isNormalCharacter(Token token){

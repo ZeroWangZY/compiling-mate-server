@@ -19,9 +19,6 @@ public class ReToNfaDto {
      */
     private List<StateGraph> graphs;
 
-    public ReToNfaDto() {
-    }
-
     public ReToNfaDto(StateTreeNode root, List<StateGraph> graphs) {
         this.root = root;
         this.graphs = graphs;

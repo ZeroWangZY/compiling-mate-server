@@ -1,16 +1,14 @@
 package ecnu.compiling.compilingmate.lex;
 
 import com.google.gson.Gson;
-import ecnu.compiling.compilingmate.lex.analyzer.ReToNfaAnalyzer;
-import ecnu.compiling.compilingmate.lex.analyzer.TompsonAnalyzer;
+import ecnu.compiling.compilingmate.lex.analyzer.nfa.TompsonAnalyzer;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.entity.Token;
-import ecnu.compiling.compilingmate.lex.entity.graph.State;
+import ecnu.compiling.compilingmate.lex.entity.graph.NfaState;
 import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
 import ecnu.compiling.compilingmate.lex.policy.ScannerFactory;
 import ecnu.compiling.compilingmate.lex.policy.rule.DefaultReRule;
 import ecnu.compiling.compilingmate.lex.policy.scanner.DefaultReScanner;
-import ecnu.compiling.compilingmate.lex.policy.scanner.LexScanner;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
@@ -98,8 +96,8 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
 
             StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a,b);
 
-            State resultStart = result.getStartState();
-            State resultEnd = result.getFinalState();
+            NfaState resultStart = result.getStartState();
+            NfaState resultEnd = result.getFinalState();
 
             Assert.assertEquals(resultEnd, resultStart.getNextState().getNextState());
 
@@ -133,8 +131,8 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
 
             StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a,b);
 
-            State resultStart = result.getStartState();
-            State resultEnd = result.getFinalState();
+            NfaState resultStart = result.getStartState();
+            NfaState resultEnd = result.getFinalState();
 
             Assert.assertEquals(2, resultStart.getNextStatesWhenEmptyInput().size());
             Assert.assertEquals(true, resultEnd.isEnd());
@@ -170,8 +168,8 @@ public class ThompsonReToNfaAnalyzerTest extends TestCase{
 
             StateGraph result = (StateGraph) format.invoke(lexAnalyzer,a);
 
-            State resultStart = result.getStartState();
-            State resultEnd = result.getFinalState();
+            NfaState resultStart = result.getStartState();
+            NfaState resultEnd = result.getFinalState();
 
             assertEquals(5, result.getEdges().size());
             assertEquals(4, result.getStates().size());

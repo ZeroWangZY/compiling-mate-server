@@ -1,5 +1,6 @@
 package ecnu.compiling.compilingmate.controller;
 
+import ecnu.compiling.compilingmate.entity.DfaData;
 import ecnu.compiling.compilingmate.entity.Result;
 import ecnu.compiling.compilingmate.entity.TompsonData;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
@@ -27,9 +28,8 @@ public class LexController {
 
         try {
             Rule rule = lexService.getRuleByName(ruleName);
-            TompsonData data = lexService.getReToDfaByTompson(input, rule);
             result.setSuccess(true);
-            result.setData(data);
+            result.setData(lexService.fullLexAnalyzeByTompsonAndSubsetConstruction(input, rule));
         } catch (Exception e){
             result.setSuccess(false);
             result.setMsg(e.getMessage());

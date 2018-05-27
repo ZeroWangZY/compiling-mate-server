@@ -1,10 +1,10 @@
-package ecnu.compiling.compilingmate.lex.analyzer;
+package ecnu.compiling.compilingmate.lex.analyzer.nfa;
 
 import com.google.gson.Gson;
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.entity.*;
-import ecnu.compiling.compilingmate.lex.entity.graph.State;
+import ecnu.compiling.compilingmate.lex.entity.graph.NfaState;
 import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
 import ecnu.compiling.compilingmate.lex.entity.tree.BranchNode;
 import ecnu.compiling.compilingmate.lex.entity.tree.LeafNode;
@@ -27,7 +27,7 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
     @Override
     public ReToNfaDto process(List<Token> tokenList) {
         
-        defaultReRule = (DefaultReRule) this.rule; 
+        defaultReRule = (DefaultReRule) this.getRule();
 
         List<Token> suffixExpression = this.toSuffixExpression(tokenList);
 
@@ -170,8 +170,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
                             "Input: [ %s ]", input));
         }
 
-        State fromState = getNewState();
-        State nextState = getNewState();
+        NfaState fromState = getNewState();
+        NfaState nextState = getNewState();
 
         fromState.addNext(input, nextState);
 
@@ -214,8 +214,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         graph.addAll(toCopy);
 
         // and操作
-        State preFinal = fromCopy.getFinalState();
-        State postStart = toCopy.getStartState();
+        NfaState preFinal = fromCopy.getFinalState();
+        NfaState postStart = toCopy.getStartState();
         if (preFinal == null || postStart == null) {
             throw new ConstructStateFailureException(
                     String.format("StateUnit was internal broken.\n" +
@@ -266,16 +266,16 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         StateGraph fromCopy = from.clone();
         StateGraph toCopy = to.clone();
 
-        State start = getNewState();
+        NfaState start = getNewState();
         start.setStart(true);
-        State end = getNewState();
+        NfaState end = getNewState();
         end.setEnd(true);
 
-        State aLeft = fromCopy.getStartState();
-        State aRight = fromCopy.getFinalState();
+        NfaState aLeft = fromCopy.getStartState();
+        NfaState aRight = fromCopy.getFinalState();
 
-        State bLeft = toCopy.getStartState();
-        State bRight = toCopy.getFinalState();
+        NfaState bLeft = toCopy.getStartState();
+        NfaState bRight = toCopy.getFinalState();
 
         start.addNextWithEmptyInput(aLeft);
         aLeft.setStart(false);
@@ -321,10 +321,10 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
 
 
 
-        State newStart = getNewState();
-        State newEnd = getNewState();
-        State oldStart = graph.getStartState();
-        State oldEnd = graph.getFinalState();
+        NfaState newStart = getNewState();
+        NfaState newEnd = getNewState();
+        NfaState oldStart = graph.getStartState();
+        NfaState oldEnd = graph.getFinalState();
 
         newStart.setStart(true);
         newEnd.setEnd(true);
@@ -352,8 +352,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
 
 
 
-    private State getNewState(){
-        return new State(stateNumberManager.incrementAndGet());
+    private NfaState getNewState(){
+        return new NfaState(stateNumberManager.incrementAndGet());
     }
 
     private boolean isStateUnitAvailable(StateGraph stateGraph){
