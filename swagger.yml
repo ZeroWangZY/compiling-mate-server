@@ -340,57 +340,7 @@ components:
             - T
             - F
         parseTable:
-          type: array
-          items:
-            type: array
-            items:
-              type: string
-          example:
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '1'
-              - '2'
-              - '3'
-            - - ''
-              - s6
-              - ''
-              - ''
-              - ''
-              - acc
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r2
-              - s7
-              - ''
-              - r2
-              - r2
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r4
-              - r4
-              - ''
-              - r4
-              - r4
-              - ''
-              - ''
-              - ''
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '8'
-              - '2'
-              - '3'
+          $ref: '#/components/schemas/ParseTable'
     NodeEvent:
       type: object
       properties:
@@ -436,3 +386,78 @@ components:
             - .F
             - .(E)
             - .id
+    ParseTable:
+      type: object
+      properties:
+        table:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        conflict:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+              col:
+                type: integer
+              content:
+                type: array
+                items:
+                  type: string
+      example:
+        table:
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '1'
+            - '2'
+            - '3'
+          - - ''
+            - s6
+            - ''
+            - ''
+            - ''
+            - acc
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r2
+            - s7
+            - ''
+            - r2
+            - r2
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r4
+            - r4
+            - ''
+            - r4
+            - r4
+            - ''
+            - ''
+            - ''
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '8'
+            - '2'
+            - '3'
+        conflict:
+          - row: 4
+            col: 5
+            content:
+              - s5
+              - r3
