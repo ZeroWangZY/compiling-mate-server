@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 
 
-@Controller("/lex")
+@Controller
+@RequestMapping("/lex")
 public class LexController {
 
     @Resource
