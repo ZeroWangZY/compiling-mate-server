@@ -1,45 +1,47 @@
 package ecnu.compiling.compilingmate.lex.constants;
 
+import ecnu.compiling.compilingmate.lex.entity.Token;
+
 public interface LexConstants {
 
-    Character EMPTY_CHAR = 'e';
+    Token EMPTY = new Token(SpecialToken.EMPTY.getValue());
 
     enum Operator{
-        OR('|'),
-        AND('.'),
-        BRACKET_START('('),
-        BRACKET_END(')');
+        OR("|"),
+        AND("."),
+        BRACKET_START("("),
+        BRACKET_END(")");
 
-        Character value;
+        String value;
 
-        private Operator(char value){
+        private Operator(String value){
             this.value = value;
         }
 
-        public char getValue(){
+        public String getValue(){
             return this.value;
         }
 
-        public boolean equals(Character value){
-            return this.value == value;
+        public boolean equals(String value){
+            return this.value.equals(value);
         }
     }
 
-    enum SpecialCharacter{
-        REPEAT_OR_NONE('*'),
-        EMPTY('e');
+    enum SpecialToken{
+        REPEAT_OR_NONE("*"),
+        EMPTY("%EMPTY%");
 
-        Character value;
+        String value;
 
-        private SpecialCharacter(char value){
+        private SpecialToken(String value){
             this.value = value;
         }
 
-        public char getValue(){
+        public String getValue(){
             return this.value;
         }
 
-        public boolean equals(Character value){
+        public boolean equals(String value){
             return this.value == value;
         }
     }

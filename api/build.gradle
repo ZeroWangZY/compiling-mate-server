@@ -24,5 +24,6 @@ repositories {
 dependencies {
 	compile project(':core')
 	compile('org.springframework.boot:spring-boot-starter')
+	compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
