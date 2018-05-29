@@ -1,14 +1,17 @@
-package ecnu.compiling.compilingmate.entity;
+package ecnu.compiling.compilingmate.syntax.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParsingTable {
    TableUnit[][] table;
    int tSize; //终止符个数
    List<String> symbolList=new ArrayList<>();
+   boolean conflicted;
 
    public ParsingTable(int symbolNum, int statesNum,List<String> tList,List<String> nList){
+       conflicted=false;
        this.tSize=tList.size();
        table=new TableUnit[tList.size() + nList.size()][statesNum];
        for(int i=0;i<symbolNum;i++)
@@ -19,6 +22,11 @@ public class ParsingTable {
    }
 
    public void setTable(int number,int type,int state,String terminal){
+       if(table[symbolList.indexOf(terminal)][state].type!=-1){
+           System.out.println("table has a conflict at "+terminal+state);
+           System.out.println("current value: type"+table[symbolList.indexOf(terminal)][state].type+" number"+table[symbolList.indexOf(terminal)][state].number);
+           System.out.println("new value: type"+type+" number"+number);
+       }
        table[symbolList.indexOf(terminal)][state].number = number;
        table[symbolList.indexOf(terminal)][state].type = type;
    }
@@ -64,5 +72,10 @@ public class ParsingTable {
             }
             System.out.println();
         }
+   }
+
+   public void conflicted(){
+       conflicted=true;
+       System.out.println("conflicted");
    }
 }

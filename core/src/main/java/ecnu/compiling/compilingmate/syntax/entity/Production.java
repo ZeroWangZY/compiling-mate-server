@@ -1,11 +1,11 @@
-package ecnu.compiling.compilingmate.entity;
+package ecnu.compiling.compilingmate.syntax.entity;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Production {
-    public String left;
-    public String[] right;
+    protected String left;
+    protected String[] right;
 
     public Production(String left, String[] right) {
         this.left = left;
@@ -34,7 +34,22 @@ public class Production {
         return Objects.hash(left,right);
     }
 
+    @Override
+    public String toString(){
+        String s=left+"->";
+        for(int i=0;i<right.length;i++){
+            s+=right[i];
+        }
+        return s;
+    }
 
 
+    public String getLeft() {
+        return left;
+    }
+
+    public String[] getRight() {
+        return right;
+    }
 
 }
