@@ -1,0 +1,438 @@
+openapi: 3.0.0
+info:
+  title: compiling-mate API
+  description: 这里是compiling-mate的API信息
+  version: 0.0.1
+servers:
+  - url: /api
+tags:
+  - name: lex
+  - name: syntax
+paths:
+  /lex/scan:
+    post:
+      tags:
+        - lex
+      summary: 给定RE集和input，获得该string的token序列
+      operationId: getTokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LexInputData'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LexOutputData'
+  /lex/reProcessingOutput:
+    post:
+      tags:
+        - lex
+      summary: 给定RE, 获得算法处理该RE的过程数据
+      operationId: getReProcessingOutput
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              example: 'abc'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReProcessingOutputData'
+  /syntax/parsingProcessingOutput:
+    post:
+      tags:
+        - syntax
+      summary: 给定CFG, 获得产生parsing table的过程
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  data:
+                    $ref: '#/components/schemas/ParsingProcessingOutputData'
+                  message:
+                    type: string
+                    example: ''
+components:
+  schemas:
+    LexInputData:
+      type: object
+      description: 向词法分析器输入的数据
+      properties:
+        inputCode:
+          type: string
+          description: 向词法分析器输入的源代码
+          example: 'int a = 10;'
+        reDefs:
+          example:
+            - re: int
+              tokenType: INT
+            - re: "[a-z]|[A-Z]|_([a-z]|[A-Z]|_|[0-9])*"
+              tokenType: IDENTIFIER
+            - re: =
+              tokenType: EQUEL
+            - re: "[0-9][0-9]*"
+              tokenType: NUMBER
+            - re: ;
+              tokenType: SEMICOLON
+      required:
+        - inputCode
+        - reDefs
+    LexOutputData:
+      type: object
+      description: 词法器接受数据后返回的数据
+      properties:
+        tokens:
+          example:
+            - tokenType: INT
+              lexeme: int
+              line: 1
+            - tokenType: IDENTIFIER
+              lexeme: a
+              line: 1
+            - tokenType: EQUEL
+              lexeme: =
+              line: 1
+            - tokenType: NUMBER
+              lexeme: 10
+              line: 1
+            - tokenType: SEMICOLON
+              lexeme: ;
+              line: 1
+        info:
+          type: string
+          example: 'scanning success'
+      required:
+        - tokens
+
+    ReProcessingOutputData:
+      type: object
+      properties:
+        thompsonData:
+          type: object
+          properties:
+            nfaGraphsByStep:
+              example:
+                - nodes:
+                  links:
+                - nodes:
+                  links:
+                - nodes:
+                  links:
+            reTree:
+              type: object
+              properties:
+                id:
+                  example: 0
+                name:
+                  example: r0
+                children:
+                  example:
+                    - id: 1
+                      name: r1
+                      children:
+                        - id: 2
+                          name: a
+                        - id: 3
+                          name: b
+                    - id: 4
+                      name: r2
+            nfaMap:
+              type: object
+              example:
+                0:
+                  nodes:
+                    - id: 0
+                      name: 0
+                      isStart: true
+                      isEnd: false
+                    - id: 1
+                      nmae: 1
+                      isStart: false
+                      isEnd: false
+                  links:
+                    - from: 0
+                      to: 1
+                      tag: a
+                1:
+                  nodes:
+                    - id: 0
+                      name: 0
+                      isStart: true
+                      isEnd: false
+                    - id: 1
+                      nmae: 1
+                      isStart: false
+                      isEnd: false
+                    - id: 2
+                      name: 2
+                      isStart: false
+                      isEnd: true
+                  links:
+                    - from: 0
+                      to: 1
+                      tag: a
+                    - from: 1
+                      to: 2
+                      tag: b
+        nfaToDfaData:
+          type: object
+          example:
+            dfa:
+              nodes:
+              links:
+            states:
+              -
+                - 0
+                - 1
+                - 2
+                - 4
+                - 7
+              -
+                - 1
+                - 2
+                - 3
+                - 4
+                - 6
+                - 7
+                - 8
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 6
+                - 7
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 7
+                - 9
+              -
+                - 1
+                - 2
+                - 4
+                - 5
+                - 6
+                - 7
+                - 10
+            endStates:
+              - 4
+            epsilonClosureMovingTable:
+              - moveFrom: -1
+                moveBy: ε
+                moveTo: 0
+              - moveFrom: 0
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 0
+                moveBy: b
+                moveTo: 2
+              - moveFrom: 1
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 1
+                moveBy: b
+                moveTo: 3
+              - moveFrom: 2
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 2
+                moveBy: b
+                moveTo: 2
+              - moveFrom: 3
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 3
+                moveBy: b
+                moveTo: 4
+              - moveFrom: 4
+                moveBy: a
+                moveTo: 1
+              - moveFrom: 4
+                moveBy: b
+                moveTo: 2
+
+
+    ParsingProcessingOutputData:
+      type: object
+      properties:
+        treeSteps:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodeInfo'
+          example:
+            - type: add
+              node:
+                id: '0'
+                relatedTo: null
+                linkInfo: null
+                text: '0'
+                productionLeft:
+                  - E'
+                  - E
+                  - T
+                  - T
+                  - F
+                  - F
+                productionRight:
+                  - .E
+                  - .E+T
+                  - .T
+                  - .T*F
+                  - .F
+                  - .(E)
+                  - .id
+            - type: add
+              node:
+                id: '1'
+                relatedTo: '0'
+                linkInfo: E
+                text: '1'
+                productionLeft:
+                  - E'
+                  - E
+                productionRight:
+                  - E.
+                  - E.+T
+            - type: add
+              node:
+                id: '2'
+                relatedTo: '0'
+                linkInfo: T
+                text: '2'
+                productionLeft:
+                  - E
+                  - T
+                productionRight:
+                  - T.
+                  - T.*F
+        symbols:
+          type: array
+          items:
+            type: string
+          example:
+            - id
+            - +
+            - '*'
+            - (
+            - )
+            - $
+            - E
+            - T
+            - F
+        parseTable:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          example:
+            - - s5
+              - ''
+              - ''
+              - s4
+              - ''
+              - ''
+              - '1'
+              - '2'
+              - '3'
+            - - ''
+              - s6
+              - ''
+              - ''
+              - ''
+              - acc
+              - ''
+              - ''
+              - ''
+            - - ''
+              - r2
+              - s7
+              - ''
+              - r2
+              - r2
+              - ''
+              - ''
+              - ''
+            - - ''
+              - r4
+              - r4
+              - ''
+              - r4
+              - r4
+              - ''
+              - ''
+              - ''
+            - - s5
+              - ''
+              - ''
+              - s4
+              - ''
+              - ''
+              - '8'
+              - '2'
+              - '3'
+    NodeEvent:
+      type: object
+      properties:
+        eventType:
+          type: string
+        node:
+          $ref: '#/components/schemas/NodeInfo'
+    NodeInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: '0'
+        relatedTo:
+          type: string
+          example: '0'
+        linkInfo:
+          type: string
+          example: E
+        text:
+          type: string
+          example: '0'
+        productionLeft:
+          type: array
+          items:
+            type: string
+          example:
+            - E'
+            - E
+            - T
+            - T
+            - F
+            - F
+        productionRight:
+          type: array
+          items:
+            type: string
+          example:
+            - .E
+            - .E+T
+            - .T
+            - .T*F
+            - .F
+            - .(E)
+            - .id
