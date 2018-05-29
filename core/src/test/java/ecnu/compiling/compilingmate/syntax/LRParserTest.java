@@ -36,7 +36,7 @@ public class LRParserTest{
         String[] nt=new String[]{"S","L","R"};
         String[] t=new String[]{"=","*","id","$"};
 
-        lrParser.constructItems(productions, Arrays.asList(nt),Arrays.asList(t));
+        lrParser.constructItems(productions, Arrays.asList(nt),Arrays.asList(t),"S");
     }
 
 }

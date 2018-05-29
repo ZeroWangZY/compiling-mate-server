@@ -1,17 +1,14 @@
 package ecnu.compiling.compilingmate.syntax.analyzer;
 
-import ecnu.compiling.compilingmate.syntax.entity.Goto;
-import ecnu.compiling.compilingmate.syntax.entity.LR1Item;
-import ecnu.compiling.compilingmate.syntax.entity.LR1Items;
-import ecnu.compiling.compilingmate.syntax.entity.Production;
+import ecnu.compiling.compilingmate.syntax.entity.*;
 
 import java.util.*;
 
 import static ecnu.compiling.compilingmate.syntax.utils.Utils.*;
 
-public class LRParser implements BottomUpParser{
+public class LRParser implements BottomUpParser<LR1Items>{
     @Override
-    public List<LR1Items> constructItems(List<Production> productions,List<String> nt,List<String> t) {
+    public List<LR1Items> constructItems(List<Production> productions,List<String> nt,List<String> t,String startSymbol) {
         List<LR1Items> itemsList=new ArrayList<>(); // 已找到的items
         List<Goto> gotoList=new ArrayList<>();
         Queue<LR1Items> waitingItems=new LinkedList<>(); //BFS，用队列记录待寻找closure的项
@@ -58,6 +55,8 @@ public class LRParser implements BottomUpParser{
 
         }
         System.out.println(gotoList);
+        ParsingTable parsingTable=constructParsingTable(t,nt,itemsList,gotoList,productions,startSymbol);
+        parsingTable.printTable();
         return itemsList;
     }
 
@@ -68,9 +67,9 @@ public class LRParser implements BottomUpParser{
 
     /**
      * 对于入参item，若下一个是ntB:
-     若出现B已经存在于items的left，更新所有left=B的lookhead;
-     否则找到所有B->r，统一设置它们的lookhead；
-     对新成员B->r递归findClosure
+        若出现B已经存在于items的left，更新所有left=B的lookhead;
+        否则找到所有B->r，统一设置它们的lookhead；
+            对新成员B->r递归findClosure
      */
     public void findClosure(LR1Item item, ListIterator<LR1Item> closure,LR1Items lr1Items,List<String> nt,boolean[] ntIsIncluded,List<String> t,List<Production> productions) {
         if (item.getPos() == item.getRight().length)
@@ -129,6 +128,37 @@ public class LRParser implements BottomUpParser{
                 }
             }
         }
+    }
+
+    @Override
+    public ParsingTable constructParsingTable(List<String> t, List<String> nt, List<LR1Items> itemsList,List<Goto> gotoList, List<Production> productions, String startSymbol){
+        ParsingTable actionTable=new ParsingTable(t.size()+nt.size(),itemsList.size(),t,nt);
+        for(LR1Items items:itemsList){
+
+            //shift j
+            for(Goto gotoUnit:gotoList){
+                if(gotoUnit.getBeginIndex()==itemsList.indexOf(items)){
+                    actionTable.setTable(gotoUnit.getEndIndex(),1,itemsList.indexOf(items),gotoUnit.getX());
+                }
+            }
+            for(LR1Item item:items.getClosure()){
+                if(item.getPos()>=item.getRight().length){  // 到达最右
+                    //reduce
+                    if(!item.getLeft().equals(startSymbol)){
+                        for(String lh:item.getLookHead()){
+                            actionTable.setTable(productions.indexOf(new Production(item.getLeft(),item.getRight())),0, itemsList.indexOf(items),lh);
+                        }
+                    }
+                    //accept
+                    else{
+                        actionTable.setTable(0,2,itemsList.indexOf(items),"$");
+                    }
+                }
+            }
+
+
+        }
+        return actionTable;
     }
 
 //

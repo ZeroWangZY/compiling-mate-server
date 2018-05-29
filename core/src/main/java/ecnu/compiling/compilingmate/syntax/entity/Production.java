@@ -18,6 +18,8 @@ public class Production {
             return true;
         if (obj == null)
             return false;
+        if (getClass() != obj.getClass())
+            return false;
         Production other=(Production)obj;
         if(!other.left.equals(left))
             return false;

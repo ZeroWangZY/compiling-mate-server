@@ -5,11 +5,12 @@ import ecnu.compiling.compilingmate.syntax.utils.Utils;
 
 import java.util.*;
 
-import static ecnu.compiling.compilingmate.syntax.utils.Utils.follow;
+import static ecnu.compiling.compilingmate.syntax.utils.Utils.getFollowSet;
 
-public class SLRParser {
-    public void parsing(String[] input, List<Production> productions, List<String> t, List<String> ntList) {
-
+public class SLRParser implements BottomUpParser<LR0Items>{
+    @Override
+    public List<LR0Items> constructItems(List<Production> productions, List<String> nt, List<String> t,String startSymbol) {
+        String[] input = {"id","*","id","+","id"};
         //计算items
         List<LR0Items> itemList = new ArrayList<>(); //记录最终items
         List<Goto> gotoList=new ArrayList<>(); //goto(begin,end,X)
@@ -49,42 +50,50 @@ public class SLRParser {
             System.out.println(lr0Item);
         }
         System.out.println(gotoList);
+        ParsingTable parsingTable=constructParsingTable(t,nt,itemList,gotoList,productions,startSymbol);
+        parsingTable.printTable();
+        searchTable(productions,input,parsingTable);
+        return itemList;
+    }
 
+    @Override
+    public ParsingTable constructParsingTable(List<String> t, List<String> nt, List<LR0Items> itemsList, List<Goto> gotoList, List<Production> productions, String startSymbol) {
+        System.out.println("--------------follow集--------------");
+        Map<String, Set> followSet = getFollowSet(productions, startSymbol, nt, t);
+        for (Map.Entry<String, Set> entry : followSet.entrySet()) {
+            System.out.println("follow(" + entry.getKey() + "):" + entry.getValue());
+        }
 
-        //2.填表
-        System.out.println("--------follow集--------");
-        System.out.println("follow(E):"+follow("E",productions,"E'",t));
-        System.out.println("follow(T):"+follow("T",productions,"E'",t));
-        System.out.println("follow(F):"+follow("F",productions,"E'",t));
-
-        ParsingTable actionTable=new ParsingTable(t.size()+ntList.size(),itemList.size(),t,ntList);
-        for(LR0Items item:itemList){
+        ParsingTable actionTable = new ParsingTable(t.size() + nt.size(), itemsList.size(), t, nt);
+        for (LR0Items item : itemsList) {
             //shift j
-            for(Goto gotoUnit:gotoList){
-                if(gotoUnit.getBeginIndex()==itemList.indexOf(item)){
-                    actionTable.setTable(gotoUnit.getEndIndex(),1,itemList.indexOf(item),gotoUnit.getX());
+            for (Goto gotoUnit : gotoList) {
+                if (gotoUnit.getBeginIndex() == itemsList.indexOf(item)) {
+                    actionTable.setTable(gotoUnit.getEndIndex(), 1, itemsList.indexOf(item), gotoUnit.getX());
                 }
             }
             //reduce
-            for(LR0Item p:item.getClosure().keySet()){
-                if(p.getPos()==p.getRight().length && !p.getLeft().equals("E'")){ // A->a.
-                    List<String> follow=follow(p.getLeft(),productions,"E'",t);
-                    for(String terminal:t){
-                        if(follow.contains(terminal)){
-                            actionTable.setTable(productions.indexOf(new Production(p.getLeft(),p.getRight())),0,itemList.indexOf(item),terminal);
+            for (LR0Item p : item.getClosure().keySet()) {
+                if (p.getPos() == p.getRight().length && !p.getLeft().equals(startSymbol)) { // A->a.
+                    for (String terminal : t) {
+                        if (followSet.get(p.getLeft()).contains(terminal)) {
+                            actionTable.setTable(productions.indexOf(new Production(p.getLeft(), p.getRight())), 0, itemsList.indexOf(item), terminal);
                         }
                     }
                 }
-            }
-            //accept
-            if(item.getClosure().containsKey(new LR0Item(productions.get(0).getLeft(),productions.get(0).getRight(),1 ))){
-                actionTable.setTable(0,2,itemList.indexOf(item),"$");
+                //accept
+                if (p.getLeft().equals(startSymbol)) {
+                    actionTable.setTable(0, 2, itemsList.indexOf(item), "$");
+                }
             }
         }
-        actionTable.printTable();
+        return actionTable;
+    }
 
-        //3. 查表
-        System.out.println("---------------search table-----------------");
+
+
+    public void searchTable(List<Production> productions,String[] input,ParsingTable actionTable){
+        //        System.out.println("---------------search table-----------------");
         Stack<String> stack=new Stack<>();
         String[] myInput=new String[input.length+1];
         System.arraycopy(input,0,myInput,0,input.length);
@@ -118,6 +127,5 @@ public class SLRParser {
                 break;
             }
         }
-
     }
 }
