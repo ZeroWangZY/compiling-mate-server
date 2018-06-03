@@ -7,7 +7,12 @@ import java.util.Map;
 public class ParsingTable {
    TableUnit[][] table;
    int tSize; //终止符个数
-   List<String> symbolList=new ArrayList<>();
+
+    public List<String> getSymbolList() {
+        return symbolList;
+    }
+
+    List<String> symbolList=new ArrayList<>();
    boolean conflicted;
 
    public ParsingTable(int symbolNum, int statesNum,List<String> tList,List<String> nList){
@@ -72,6 +77,36 @@ public class ParsingTable {
             }
             System.out.println();
         }
+   }
+
+   public String[][] getTableStrs(){
+       String[][] results=new String[table[0].length][table.length];
+       for(int i=0;i<table[0].length;i++) {
+           for(int j=0;j<tSize;j++) {
+               String result="";
+               switch (table[j][i].type){
+                   case -1:
+                       result="";
+                       break;
+                   case 0:
+                       result="r"+table[j][i].number;
+                       break;
+                   case 1:
+                       result="s"+table[j][i].number;
+                       break;
+                   case 2:
+                       result="acc";
+                       break;
+               }
+               results[i][j]=result;
+           }
+           //goto table
+           for(int j=tSize;j<table.length;j++){
+               String output=(table[j][i].type==1)?String.valueOf(table[j][i].number):"";
+               results[i][j]=output;
+           }
+       }
+       return results;
    }
 
    public void conflicted(){

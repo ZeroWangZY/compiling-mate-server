@@ -1,9 +1,6 @@
 package ecnu.compiling.compilingmate.syntax.entity;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class LR0Items {
     protected Map<LR0Item,Integer> closure;
@@ -55,4 +52,19 @@ public class LR0Items {
         return closure.keySet().toString();
     }
 
+    public String[] getProductionLeft(){
+        List<String> lefts=new ArrayList<>();
+        for(LR0Item item:closure.keySet()){
+            lefts.add(item.getLeft());
+        }
+        return lefts.toArray(new String[lefts.size()]);
+    }
+
+    public String[] getProductionRight(){
+        List<String> rights=new ArrayList<>();
+        for(LR0Item item:closure.keySet()){
+            rights.add(item.getLeft());
+        }
+        return rights.toArray(new String[rights.size()]);
+    }
 }
