@@ -1,6 +1,7 @@
 package ecnu.compiling.compilingmate.service;
 
 import ecnu.compiling.compilingmate.synEntity.Node;
+import ecnu.compiling.compilingmate.synEntity.ParseTable;
 import ecnu.compiling.compilingmate.synEntity.TreeStep;
 import ecnu.compiling.compilingmate.syntax.analyzer.SLRParser;
 import ecnu.compiling.compilingmate.syntax.entity.Goto;
@@ -34,7 +35,10 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         ParsingTable parsingTable=(ParsingTable)resultMap.get("parsingTable");
         data.put("treeSteps",getTreeSteps(productions,nt,t,"E'",gotoList,(List<LR0Items>)resultMap.get("itemsList")));
         data.put("symbols",parsingTable.getSymbolList().toArray());
-        data.put("parseTable",parsingTable.getTableStrs());
+        ParseTable parseTable=new ParseTable();
+        parseTable.setTable(parsingTable.getTableStrs());
+        parseTable.setConflictList(parsingTable.getConflictList());
+        data.put("parseTable",parseTable);
         return data;
     }
 
@@ -51,7 +55,7 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         treeSteps[0]=new TreeStep("add",new Node("0",null,null,"0",lr0ItemsList.get(0).getProductionLeft(),lr0ItemsList.get(0).getProductionRight()));
 
         for(int i=0;i<gotoList.size();i++){
-            Node node=new Node(String.valueOf(i),gotoList.get(i),lr0ItemsList.get(gotoList.get(i).getEndIndex()));
+            Node node=new Node(String.valueOf(i)+1,gotoList.get(i),lr0ItemsList.get(gotoList.get(i).getEndIndex()));
             treeSteps[i+1]=new TreeStep("add",node);
         }
         return treeSteps;

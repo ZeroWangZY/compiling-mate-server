@@ -63,7 +63,17 @@ public class LR0Items {
     public String[] getProductionRight(){
         List<String> rights=new ArrayList<>();
         for(LR0Item item:closure.keySet()){
-            rights.add(item.getLeft());
+            StringBuffer right=new StringBuffer();
+            for(int i=0;i<item.getRight().length;i++){
+                if(item.getPos()==i){
+                    right.append(".");
+                }
+                right.append(item.getRight()[i]);
+            }
+            if(item.getPos()==item.getRight().length){
+                right.append(".");
+            }
+            rights.add(right.toString());
         }
         return rights.toArray(new String[rights.size()]);
     }

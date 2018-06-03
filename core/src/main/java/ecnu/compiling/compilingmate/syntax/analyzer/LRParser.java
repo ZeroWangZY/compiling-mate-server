@@ -137,6 +137,7 @@ public class LRParser implements BottomUpParser<LR1Items>{
             //shift j
             for(Goto gotoUnit:gotoList){
                 if(gotoUnit.getBeginIndex()==itemsList.indexOf(items)){
+                    //conflict判断在setTable中处理
                     actionTable.setTable(gotoUnit.getEndIndex(),1,itemsList.indexOf(items),gotoUnit.getX());
                 }
             }

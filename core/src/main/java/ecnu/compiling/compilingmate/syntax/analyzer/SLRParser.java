@@ -77,6 +77,7 @@ public class SLRParser implements BottomUpParser<LR0Items>{
             //shift j
             for (Goto gotoUnit : gotoList) {
                 if (gotoUnit.getBeginIndex() == itemsList.indexOf(item)) {
+                    //conflict判断在setTable中处理
                     actionTable.setTable(gotoUnit.getEndIndex(), 1, itemsList.indexOf(item), gotoUnit.getX());
                 }
             }
@@ -90,7 +91,7 @@ public class SLRParser implements BottomUpParser<LR0Items>{
                     }
                 }
                 //accept
-                if (p.getLeft().equals(startSymbol)) {
+                if (p.getLeft().equals(startSymbol) && p.getRight().length==p.getPos()) {
                     actionTable.setTable(0, 2, itemsList.indexOf(item), "$");
                 }
             }
