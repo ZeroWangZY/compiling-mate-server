@@ -35,8 +35,10 @@ public class ParsingTable {
 //           System.out.println("current value: type"+table[symbolList.indexOf(terminal)][state].type+" number"+table[symbolList.indexOf(terminal)][state].number);
 //           System.out.println("new value: type"+type+" number"+number);
        }
-       table[symbolList.indexOf(terminal)][state].number = number;
-       table[symbolList.indexOf(terminal)][state].type = type;
+       else {
+           table[symbolList.indexOf(terminal)][state].number = number;
+           table[symbolList.indexOf(terminal)][state].type = type;
+       }
    }
 
 

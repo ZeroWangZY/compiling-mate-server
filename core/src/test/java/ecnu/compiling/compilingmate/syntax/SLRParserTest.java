@@ -85,6 +85,40 @@ public class SLRParserTest {
        slrParser.parse(productions,nt,t,"E'",gotoList);
     }
 
+    @Test
+    public void inputProcessing(){
+        java.util.List<Production> productions = new ArrayList<>();
+//        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
+//        List<String> nt=Arrays.asList("E","T","F");
+        //初始化productions,添加E'->E
+        //productions.add(new Production("E'", new String[]{"E"}));
+        productions.add(new Production("E", new String[]{"E", "+", "T"}));
+        productions.add(new Production("E", new String[]{"T"}));
+        productions.add(new Production("T", new String[]{"T", "*", "F"}));
+        productions.add(new Production("T", new String[]{"F"}));
+        productions.add(new Production("F", new String[]{"(", "E", ")"}));
+        productions.add(new Production("F", new String[]{"id"}));
+        String start="E";
+
+        List<String> nts=new ArrayList<>();
+        List<String> ts=new ArrayList<>();
+        for(Production p:productions){
+            if(!nts.contains(p.getLeft())){
+                nts.add(p.getLeft());
+            }
+        }
+        for(Production p:productions){
+            for(String s:p.getRight()){
+                if(!nts.contains(s)){
+                    ts.add(s);
+                }
+            }
+        }
+        ts.add("$");
+        System.out.println(ts);
+        System.out.println(nts);
+    }
+
 
 
 }

@@ -8,6 +8,7 @@ import java.util.*;
 import static ecnu.compiling.compilingmate.syntax.utils.Utils.getFollowSet;
 
 public class SLRParser implements BottomUpParser<LR0Items>{
+
     public Map<String,Object> parse(List<Production> productions, List<String> nt, List<String> t,String startSymbol, List<Goto> gotoList){
         List<LR0Items> lr0ItemsList=constructItems(productions,nt,t,startSymbol,gotoList);
         ParsingTable parsingTable=constructParsingTable(t,nt,lr0ItemsList,gotoList,productions,startSymbol);

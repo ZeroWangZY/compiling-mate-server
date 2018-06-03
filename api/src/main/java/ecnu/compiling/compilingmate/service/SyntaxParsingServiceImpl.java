@@ -17,17 +17,31 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
     @Override
     public Map<String,Object> getSlrParsingOutput(){
         //入参
+//        java.util.List<Production> productions = new ArrayList<>();
+//        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
+//        List<String> nt=Arrays.asList("E","T","F");
+//        productions.add(new Production("E'", new String[]{"E"}));
+//        productions.add(new Production("E", new String[]{"E", "+", "T"}));
+//        productions.add(new Production("E", new String[]{"T"}));
+//        productions.add(new Production("T", new String[]{"T", "*", "F"}));
+//        productions.add(new Production("T", new String[]{"F"}));
+//        productions.add(new Production("F", new String[]{"(", "E", ")"}));
+//        productions.add(new Production("F", new String[]{"id"}));
+//        String startSymbol="E'";
+
         java.util.List<Production> productions = new ArrayList<>();
-        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
-        List<String> nt=Arrays.asList("E","T","F");
-        productions.add(new Production("E'", new String[]{"E"}));
-        productions.add(new Production("E", new String[]{"E", "+", "T"}));
-        productions.add(new Production("E", new String[]{"T"}));
-        productions.add(new Production("T", new String[]{"T", "*", "F"}));
-        productions.add(new Production("T", new String[]{"F"}));
-        productions.add(new Production("F", new String[]{"(", "E", ")"}));
-        productions.add(new Production("F", new String[]{"id"}));
-        String startSymbol="E'";
+        List<String> nt=Arrays.asList(new String[]{"S","L","R"});
+        List<String>  t=Arrays.asList(new String[]{"=","*","id","$"});
+
+        productions.add(new Production("S'",new String[]{"S"}));
+        productions.add(new Production("S",new String[]{"L","=","R"}));
+        productions.add(new Production("S",new String[]{"R"}));
+        productions.add(new Production("L",new String[]{"*","R"}));
+        productions.add(new Production("L",new String[]{"id"}));
+        productions.add(new Production("R",new String[]{"L"}));
+
+        String startSymbol="S'";
+
 
         Map<String,Object> data=new HashMap<>();
         List<Goto> gotoList=new ArrayList<>();
