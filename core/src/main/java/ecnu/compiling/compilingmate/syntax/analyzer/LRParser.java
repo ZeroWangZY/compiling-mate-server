@@ -8,9 +8,8 @@ import static ecnu.compiling.compilingmate.syntax.utils.Utils.*;
 
 public class LRParser implements BottomUpParser<LR1Items>{
     @Override
-    public List<LR1Items> constructItems(List<Production> productions,List<String> nt,List<String> t,String startSymbol) {
+    public List<LR1Items> constructItems(List<Production> productions,List<String> nt,List<String> t,String startSymbol,List<Goto> gotoList) {
         List<LR1Items> itemsList=new ArrayList<>(); // 已找到的items
-        List<Goto> gotoList=new ArrayList<>();
         Queue<LR1Items> waitingItems=new LinkedList<>(); //BFS，用队列记录待寻找closure的项
         /**
          * init item 0
@@ -138,6 +137,7 @@ public class LRParser implements BottomUpParser<LR1Items>{
             //shift j
             for(Goto gotoUnit:gotoList){
                 if(gotoUnit.getBeginIndex()==itemsList.indexOf(items)){
+                    //conflict判断在setTable中处理
                     actionTable.setTable(gotoUnit.getEndIndex(),1,itemsList.indexOf(items),gotoUnit.getX());
                 }
             }

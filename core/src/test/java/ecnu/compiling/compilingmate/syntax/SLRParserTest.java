@@ -1,9 +1,7 @@
 package ecnu.compiling.compilingmate.syntax;
 
 import ecnu.compiling.compilingmate.syntax.analyzer.SLRParser;
-import ecnu.compiling.compilingmate.syntax.entity.LR0Item;
-import ecnu.compiling.compilingmate.syntax.entity.LR0Items;
-import ecnu.compiling.compilingmate.syntax.entity.Production;
+import ecnu.compiling.compilingmate.syntax.entity.*;
 import org.junit.Test;
 
 import java.util.*;
@@ -28,8 +26,9 @@ public class SLRParserTest {
         productions.add(new Production("F", new String[]{"(", "E", ")"}));
         productions.add(new Production("F", new String[]{"id"}));
 
+        List<Goto> gotoList=new ArrayList<>();
 
-        List<LR0Items> itemsList=slrParser.constructItems(productions,nt,t,"E'");
+        List<LR0Items> itemsList=slrParser.constructItems(productions,nt,t,"E'",gotoList);
 //
 //        Map<String,List<String>> followSet=getFollowSet(productions,"S'",Arrays.asList(nt),Arrays.asList(t));
 //        for(Map.Entry<String,List<String>> entry:followSet.entrySet()){
@@ -62,7 +61,62 @@ public class SLRParserTest {
         List<String> nt=Arrays.asList(new String[]{"S","L","R"});
         List<String>  t=Arrays.asList(new String[]{"=","*","id","$"});
 
-        List<LR0Items> itemsList=slrParser.constructItems(productions,nt,t,"S'");
+        List<Goto> gotoList=new ArrayList<>();
+        List<LR0Items> itemsList=slrParser.constructItems(productions,nt,t,"S'",gotoList);
+    }
+
+    @Test
+    public void parseTest(){
+        java.util.List<Production> productions = new ArrayList<>();
+        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
+        List<String> nt=Arrays.asList("E","T","F");
+        //初始化productions,添加E'->E
+        productions.add(new Production("E'", new String[]{"E"}));
+        productions.add(new Production("E", new String[]{"E", "+", "T"}));
+        productions.add(new Production("E", new String[]{"T"}));
+        productions.add(new Production("T", new String[]{"T", "*", "F"}));
+        productions.add(new Production("T", new String[]{"F"}));
+        productions.add(new Production("F", new String[]{"(", "E", ")"}));
+        productions.add(new Production("F", new String[]{"id"}));
+
+        List<Goto> gotoList=new ArrayList<>();
+
+
+       slrParser.parse(productions,nt,t,"E'",gotoList);
+    }
+
+    @Test
+    public void inputProcessing(){
+        java.util.List<Production> productions = new ArrayList<>();
+//        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
+//        List<String> nt=Arrays.asList("E","T","F");
+        //初始化productions,添加E'->E
+        //productions.add(new Production("E'", new String[]{"E"}));
+        productions.add(new Production("E", new String[]{"E", "+", "T"}));
+        productions.add(new Production("E", new String[]{"T"}));
+        productions.add(new Production("T", new String[]{"T", "*", "F"}));
+        productions.add(new Production("T", new String[]{"F"}));
+        productions.add(new Production("F", new String[]{"(", "E", ")"}));
+        productions.add(new Production("F", new String[]{"id"}));
+        String start="E";
+
+        List<String> nts=new ArrayList<>();
+        List<String> ts=new ArrayList<>();
+        for(Production p:productions){
+            if(!nts.contains(p.getLeft())){
+                nts.add(p.getLeft());
+            }
+        }
+        for(Production p:productions){
+            for(String s:p.getRight()){
+                if(!nts.contains(s)){
+                    ts.add(s);
+                }
+            }
+        }
+        ts.add("$");
+        System.out.println(ts);
+        System.out.println(nts);
     }
 
 
