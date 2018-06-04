@@ -1,10 +1,11 @@
 package ecnu.compiling.compilingmate.lex.constants;
 
 import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.TokenKind;
 
 public interface LexConstants {
 
-    Token EMPTY = new Token(SpecialToken.EMPTY.getValue());
+    Token EMPTY = new Token(SpecialToken.EMPTY.getValue(), TokenKind.EMPTY);
 
     enum Operator{
         OR("|"),

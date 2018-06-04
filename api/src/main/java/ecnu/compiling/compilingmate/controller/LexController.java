@@ -9,21 +9,29 @@ import ecnu.compiling.compilingmate.service.LexService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 
 
-@Controller("/lex")
+@Controller
+@RequestMapping("/lex")
 public class LexController {
 
     @Resource
     LexService lexService;
 
-    @RequestMapping("/reProcessingOutput")
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public String test(){
+        System.out.println("test...");
+        return "success";
+    }
+
+    @RequestMapping(value = "/reProcessingOutput", method = RequestMethod.POST)
     @ResponseBody
-    public Result reProcessingOutput(@RequestParam("input") String input, @RequestParam("ruleName") String ruleName){
+    public Result reProcessingOutput(@RequestParam(value = "input") String input, @RequestParam(value = "ruleName", required = false, defaultValue = "") String ruleName){
         Result result = new Result();
 
         try {

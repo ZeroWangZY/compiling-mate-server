@@ -1,10 +1,12 @@
 package ecnu.compiling.compilingmate.lex.policy.rule;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
+import ecnu.compiling.compilingmate.lex.entity.ReTokenType;
 import ecnu.compiling.compilingmate.lex.entity.Token;
 
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 /**
  * 单个字母或数字为一个token
@@ -13,31 +15,23 @@ public class DefaultReRule extends Rule{
 
     public DefaultReRule(){
         super();
-        for (LexConstants.Operator operator : LexConstants.Operator.values()){
-            this.addOperator(new Token(operator.getValue()));
+        for (ReTokenType tokenType : ReTokenType.values()){
+            switch (tokenType.getTokenKind()){
+                case OPERATOR:
+                    this.addOperator(tokenType.getValue(), tokenType.getTokenKind());
+                    break;
+                case SPECIAL_VALUE:
+                    this.addSpecialCharacter(tokenType.getValue(), tokenType.getTokenKind());
+                case VALUE:
+                    this.addCharacter(tokenType.getValue(), tokenType.getTokenKind());
+            }
         }
-
-        for (LexConstants.SpecialToken specialToken : LexConstants.SpecialToken.values()){
-            this.addSpecialCharacter(new Token(specialToken.getValue()));
-        }
-
     }
 
     @Override
-    public boolean isNormalCharacter(String token){
-        if (token == null || token.length() != 1){
-            return false;
-        }
-
-        return Character.isLetterOrDigit(token.charAt(0));
+    protected boolean matchKey(String key, String token){
+        return Pattern.matches(key, token);
     }
-
-    @Override
-    public boolean isNormalCharacter(Token token){
-        if (token == null) return false;
-        return this.isNormalCharacter(token.getContent());
-    }
-
 
     public boolean isAnd(Token input){
         if (input == null) return false;
