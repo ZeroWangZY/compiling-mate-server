@@ -280,7 +280,7 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         start.addNextWithEmptyInput(aLeft);
         aLeft.setStart(false);
         start.addNextWithEmptyInput(bLeft);
-        aLeft.setStart(false);
+        bLeft.setStart(false);
 
         aRight.setEnd(false);
         aRight.addNextWithEmptyInput(end);
@@ -318,8 +318,6 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
                                     "Input: stateUnit-[ %s ]",
                             GSON.toJson(stateGraph)));
         }
-
-
 
         NfaState newStart = getNewState();
         NfaState newEnd = getNewState();

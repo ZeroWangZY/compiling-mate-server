@@ -30,13 +30,13 @@ public abstract class Rule {
         for (LanguageDefinition tokenType : defSet){
             switch (tokenType.getTokenKind()){
                 case KEYWORD:
+                case SPECIAL_VALUE:
                     this.addSpecialCharacter(tokenType.getReExpression(), tokenType);
                     break;
                 case OPERATOR:
                 case BRACKET:
                     this.addOperator(tokenType.getReExpression(), tokenType);
                     break;
-                case SPECIAL_VALUE:
                 case IDENTIFIER:
                 case VALUE:
                     this.addCharacter(tokenType.getReExpression(), tokenType);
