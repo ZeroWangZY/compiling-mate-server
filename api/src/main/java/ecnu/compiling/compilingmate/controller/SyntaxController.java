@@ -3,6 +3,7 @@ package ecnu.compiling.compilingmate.controller;
 import ecnu.compiling.compilingmate.service.SyntaxParsingService;
 import ecnu.compiling.compilingmate.service.SyntaxParsingServiceImpl;
 import ecnu.compiling.compilingmate.synEntity.Result;
+import ecnu.compiling.compilingmate.syntax.entity.Production;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +19,13 @@ public class SyntaxController {
 
     @RequestMapping("/parsingProcessingOutput")
     @ResponseBody
+    //            @RequestParam("production")Production[] productions,
+    //            @RequestParam("startSymbol") String startSymbol,
+    //            @RequestParam("type") int type // 0:SLR, 1:LR
+
     public Result parsingProcessingOutput(){
         Result result=new Result();
-        result.setData(syntaxParsingService.getSlrParsingOutput());
+        result.setData(syntaxParsingService.getSlrParsingOutput(1));
         result.setSuccess(true);
         return result;
     }
@@ -30,7 +35,7 @@ public class SyntaxController {
     @ResponseBody
     public Result lrParsingOutput(){
         Result result=new Result();
-        result.setData(syntaxParsingService.getLrParsingOutput());
+        result.setData(syntaxParsingService.getSlrParsingOutput(1));
         result.setSuccess(true);
         return result;
     }

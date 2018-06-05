@@ -14,6 +14,17 @@ public class LR0Item extends Production {
         this.pos=pos;
     }
 
+    public String getRightStr(){
+        StringBuilder stringBuilder=new StringBuilder();
+        for(int i=0;i<right.length;i++){
+            if(i==pos){
+                stringBuilder.append(".");
+            }
+            stringBuilder.append(right[i]);
+        }
+        return stringBuilder.toString();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

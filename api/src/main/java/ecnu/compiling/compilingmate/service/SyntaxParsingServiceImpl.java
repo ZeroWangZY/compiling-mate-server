@@ -3,11 +3,9 @@ package ecnu.compiling.compilingmate.service;
 import ecnu.compiling.compilingmate.synEntity.Node;
 import ecnu.compiling.compilingmate.synEntity.ParseTable;
 import ecnu.compiling.compilingmate.synEntity.TreeStep;
+import ecnu.compiling.compilingmate.syntax.analyzer.LRParser;
 import ecnu.compiling.compilingmate.syntax.analyzer.SLRParser;
-import ecnu.compiling.compilingmate.syntax.entity.Goto;
-import ecnu.compiling.compilingmate.syntax.entity.LR0Items;
-import ecnu.compiling.compilingmate.syntax.entity.ParsingTable;
-import ecnu.compiling.compilingmate.syntax.entity.Production;
+import ecnu.compiling.compilingmate.syntax.entity.*;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +13,7 @@ import java.util.*;
 @Service("syntaxParsingService")
 public class SyntaxParsingServiceImpl implements SyntaxParsingService{
     @Override
-    public Map<String,Object> getSlrParsingOutput(){
+    public Map<String,Object> getSlrParsingOutput(int type){ //0:slr,1:lr
         //入参
 //        java.util.List<Production> productions = new ArrayList<>();
 //        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
@@ -45,9 +43,19 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
 
         Map<String,Object> data=new HashMap<>();
         List<Goto> gotoList=new ArrayList<>();
-        Map<String,Object> resultMap=new SLRParser().parse(productions,nt,t,startSymbol,gotoList);
-        ParsingTable parsingTable=(ParsingTable)resultMap.get("parsingTable");
-        data.put("treeSteps",getTreeSteps(productions,nt,t,"E'",gotoList,(List<LR0Items>)resultMap.get("itemsList")));
+        Map<String,Object> resultMap;
+        ParsingTable parsingTable;
+        if(type==0) {
+            resultMap = new SLRParser().parse(productions, nt, t, startSymbol, gotoList);
+            parsingTable = (ParsingTable) resultMap.get("parsingTable");
+            data.put("treeSteps", getLr0TreeSteps(productions, nt, t, "E'", gotoList, (List<LR0Items>) resultMap.get("itemsList")));
+        }
+        else{
+            resultMap = new LRParser().parse(productions, nt, t, startSymbol, gotoList);
+            parsingTable = (ParsingTable) resultMap.get("parsingTable");
+            data.put("treeSteps", getLr1TreeSteps(productions, nt, t, "S'", gotoList, (List<LR1Items>) resultMap.get("itemsList")));
+        }
+
         data.put("symbols",parsingTable.getSymbolList().toArray());
         ParseTable parseTable=new ParseTable();
         parseTable.setTable(parsingTable.getTableStrs());
@@ -56,14 +64,9 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         return data;
     }
 
-    @Override
-    public Map<String,Object> getLrParsingOutput(){
-        Map<String,Object> data=new HashMap<>();
-        return data;
-    }
 
 
-    public TreeStep[] getTreeSteps(List<Production> productions, List<String> nt, List<String> t,String startSymbol,List<Goto> gotoList, List<LR0Items> lr0ItemsList){
+    public TreeStep[] getLr0TreeSteps(List<Production> productions, List<String> nt, List<String> t,String startSymbol,List<Goto> gotoList, List<LR0Items> lr0ItemsList){
         TreeStep[] treeSteps=new TreeStep[gotoList.size()+1];
         //init I0
         treeSteps[0]=new TreeStep("add",new Node("0",null,null,"0",lr0ItemsList.get(0).getProductionLeft(),lr0ItemsList.get(0).getProductionRight()));
@@ -74,5 +77,17 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         }
         return treeSteps;
     }
+
+    public TreeStep[] getLr1TreeSteps(List<Production> productions, List<String> nt, List<String> t,String startSymbol,List<Goto> gotoList, List<LR1Items> lr1ItemsList){
+        TreeStep[] treeSteps=new TreeStep[gotoList.size()+1];
+        //init I0
+        treeSteps[0]=new TreeStep("add",new Node("0",null,null,"0",lr1ItemsList.get(0).getProductionLeft(),lr1ItemsList.get(0).getProductionRight()));
+        for(int i=0;i<gotoList.size();i++){
+            Node node=new Node(String.valueOf(i+1),gotoList.get(i),lr1ItemsList.get(gotoList.get(i).getEndIndex()));
+            treeSteps[i+1]=new TreeStep("add",node);
+        }
+        return treeSteps;
+    }
+
 
 }

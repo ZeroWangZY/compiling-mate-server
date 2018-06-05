@@ -2,6 +2,7 @@ package ecnu.compiling.compilingmate.synEntity;
 
 import ecnu.compiling.compilingmate.syntax.entity.Goto;
 import ecnu.compiling.compilingmate.syntax.entity.LR0Items;
+import ecnu.compiling.compilingmate.syntax.entity.LR1Items;
 
 public class Node {
     private String id;
@@ -19,6 +20,15 @@ public class Node {
         this.text=String.valueOf(gotoUnit.getEndIndex());
         this.productionLeft=lr0Items.getProductionLeft();
         this.productionRight=lr0Items.getProductionRight();
+    }
+
+    public Node(String id, Goto gotoUnit, LR1Items lr1Items){
+        this.id=id;
+        this.relatedTo=String.valueOf(gotoUnit.getBeginIndex());
+        this.linkInfo=gotoUnit.getX();
+        this.text=String.valueOf(gotoUnit.getEndIndex());
+        this.productionLeft=lr1Items.getProductionLeft();
+        this.productionRight=lr1Items.getProductionRight();
     }
 
     public Node(String id, String relatedTo, String linkInfo, String text, String[] productionLeft, String[] productionRight) {
