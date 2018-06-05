@@ -1,4 +1,4 @@
-package ecnu.compiling.compilingmate.lex.entity;
+package ecnu.compiling.compilingmate.lex.entity.token;
 
 public enum TokenKind {
 
@@ -16,8 +16,6 @@ public enum TokenKind {
 
     SPECIAL_VALUE,
 
-    EMPTY,
-
-    PHRASE_BREAKER;
+    PHRASE_BREAKER
 
 }

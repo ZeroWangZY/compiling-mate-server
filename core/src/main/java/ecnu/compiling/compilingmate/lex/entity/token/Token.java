@@ -1,6 +1,8 @@
-package ecnu.compiling.compilingmate.lex.entity;
+package ecnu.compiling.compilingmate.lex.entity.token;
 
 public class Token implements Cloneable{
+
+    private String name;
 
     private String content;
 
@@ -14,6 +16,20 @@ public class Token implements Cloneable{
     public Token(String content, TokenKind tokenKind) {
         this.content = content;
         this.tokenKind = tokenKind;
+    }
+
+    public Token(String name, String content, TokenKind tokenKind) {
+        this.name = name;
+        this.content = content;
+        this.tokenKind = tokenKind;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getContent() {
@@ -48,7 +64,7 @@ public class Token implements Cloneable{
 
     @Override
     public String toString() {
-        return String.format("%s [Type: %s]", content, tokenKind.name());
+        return String.format("%s [Name: %s, Type: %s]", content, name, tokenKind.name());
     }
 
     @Override

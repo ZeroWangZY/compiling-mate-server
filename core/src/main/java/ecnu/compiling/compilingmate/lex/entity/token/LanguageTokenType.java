@@ -1,6 +1,10 @@
-package ecnu.compiling.compilingmate.lex.entity;
+package ecnu.compiling.compilingmate.lex.entity.token;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public enum LanguageTokenType {
 
@@ -65,5 +69,12 @@ public enum LanguageTokenType {
 
     public void setRegularExpression(String regularExpression) {
         this.regularExpression = regularExpression;
+    }
+
+    public static Set<LanguageDefinition> getLangDefs(){
+        return Arrays.stream(LanguageTokenType.values())
+                        .map(value -> new LanguageDefinition(
+                                value.name(), value.getRegularExpression(), value.tokenKind)
+                        ).collect(Collectors.toSet());
     }
 }

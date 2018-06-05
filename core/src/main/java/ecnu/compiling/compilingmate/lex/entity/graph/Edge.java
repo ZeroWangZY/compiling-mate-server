@@ -1,6 +1,6 @@
 package ecnu.compiling.compilingmate.lex.entity.graph;
 
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 
 public class Edge implements Cloneable{
     private Integer from;

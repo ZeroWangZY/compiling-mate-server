@@ -1,4 +1,9 @@
-package ecnu.compiling.compilingmate.lex.entity;
+package ecnu.compiling.compilingmate.lex.entity.token;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum  ReTokenType {
     OR("\\|", TokenKind.OPERATOR),
@@ -28,5 +33,12 @@ public enum  ReTokenType {
 
     public boolean equals(String value){
         return this.value == value;
+    }
+
+    public static Set<LanguageDefinition> getLangDefs(){
+        return Arrays.stream(ReTokenType.values())
+                .map(value -> new LanguageDefinition(
+                        value.name(), value.getValue(), value.getTokenKind())
+                ).collect(Collectors.toSet());
     }
 }

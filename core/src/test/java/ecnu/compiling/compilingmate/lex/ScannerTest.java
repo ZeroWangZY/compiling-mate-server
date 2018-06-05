@@ -1,15 +1,15 @@
 package ecnu.compiling.compilingmate.lex;
 
-import ecnu.compiling.compilingmate.lex.entity.tree.TokenizedPhrase;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenizedPhrase;
 import ecnu.compiling.compilingmate.lex.policy.rule.SimpleLanguageRule;
-import ecnu.compiling.compilingmate.lex.policy.scanner.SimpleLanguageScanner;
+import ecnu.compiling.compilingmate.lex.policy.scanner.LanguageScanner;
 import junit.framework.TestCase;
 
 import java.util.List;
 
 public class ScannerTest extends TestCase {
     public void test(){
-        SimpleLanguageScanner scanner = new SimpleLanguageScanner();
+        LanguageScanner scanner = new LanguageScanner(new SimpleLanguageRule());
 
         String case1 = "int i = 0;\n i++; i=7;";
         List<TokenizedPhrase> tokenizedPhrases = scanner.parseAsPhrases(case1);

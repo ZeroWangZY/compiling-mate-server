@@ -1,11 +1,11 @@
-package ecnu.compiling.compilingmate.lex.entity.tree;
+package ecnu.compiling.compilingmate.lex.entity.token;
 
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TokenizedPhrase {
+public class TokenizedPhrase implements Comparable<TokenizedPhrase>{
     private Integer seqNo;
 
     private List<Token> tokens;
@@ -35,5 +35,12 @@ public class TokenizedPhrase {
 
     public List<Token> getTokens(){
         return this.tokens;
+    }
+
+    @Override
+    public int compareTo(TokenizedPhrase o) {
+        if (this.seqNo == null) return 0;
+        if (o.seqNo == null) return 0;
+        return this.seqNo = o.seqNo;
     }
 }

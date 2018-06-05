@@ -1,8 +1,8 @@
 package ecnu.compiling.compilingmate.lex.policy.rule;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
-import ecnu.compiling.compilingmate.lex.entity.ReTokenType;
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.ReTokenType;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 
 import java.util.List;
 import java.util.Stack;
@@ -14,23 +14,7 @@ import java.util.regex.Pattern;
 public class DefaultReRule extends Rule{
 
     public DefaultReRule(){
-        super();
-        for (ReTokenType tokenType : ReTokenType.values()){
-            switch (tokenType.getTokenKind()){
-                case OPERATOR:
-                    this.addOperator(tokenType.getValue(), tokenType.getTokenKind());
-                    break;
-                case SPECIAL_VALUE:
-                    this.addSpecialCharacter(tokenType.getValue(), tokenType.getTokenKind());
-                case VALUE:
-                    this.addCharacter(tokenType.getValue(), tokenType.getTokenKind());
-            }
-        }
-    }
-
-    @Override
-    protected boolean matchKey(String key, String token){
-        return Pattern.matches(key, token);
+        super(ReTokenType.getLangDefs());
     }
 
     public boolean isAnd(Token input){

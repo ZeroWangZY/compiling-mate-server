@@ -6,6 +6,7 @@ import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.entity.*;
 import ecnu.compiling.compilingmate.lex.entity.graph.NfaState;
 import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.entity.tree.BranchNode;
 import ecnu.compiling.compilingmate.lex.entity.tree.LeafNode;
 import ecnu.compiling.compilingmate.lex.exception.ConstructStateFailureException;

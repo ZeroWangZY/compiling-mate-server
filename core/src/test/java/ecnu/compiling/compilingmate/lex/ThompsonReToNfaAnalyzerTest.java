@@ -3,7 +3,7 @@ package ecnu.compiling.compilingmate.lex;
 import com.google.gson.Gson;
 import ecnu.compiling.compilingmate.lex.analyzer.nfa.TompsonAnalyzer;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.entity.graph.NfaState;
 import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
 import ecnu.compiling.compilingmate.lex.policy.ScannerFactory;
