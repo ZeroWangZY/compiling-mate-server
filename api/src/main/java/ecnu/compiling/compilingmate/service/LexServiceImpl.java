@@ -108,7 +108,7 @@ public class LexServiceImpl implements LexService{
         link.setFrom(edge.getFrom());
         link.setTo(edge.getTo());
 
-        if (!LexConstants.SpecialToken.EMPTY.getValue().equals(edge.getTag().getContent())){
+        if (!LexConstants.EMPTY.getContent().equals(edge.getTag().getContent())){
             link.setTag(edge.getTag().getContent());
         }
 

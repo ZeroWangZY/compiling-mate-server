@@ -42,9 +42,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         Stack<StateUnit> unitStack = new Stack<>();
         for (int i = 0; i < suffixExpression.size(); i++) {
             StateGraph graph = null;
-            BranchNode node = new BranchNode(i);
-
             Token character = suffixExpression.get(i);
+            BranchNode node = new BranchNode(i, character);
 
             if (defaultReRule.isNormalCharacter(character)){
 
