@@ -4,8 +4,16 @@ public class Token implements Cloneable{
 
     private String content;
 
+    private TokenKind tokenKind;
+
     public Token(String content) {
         this.content = content;
+        this.tokenKind = TokenKind.UNKNOWN;
+    }
+
+    public Token(String content, TokenKind tokenKind) {
+        this.content = content;
+        this.tokenKind = tokenKind;
     }
 
     public String getContent() {
@@ -14,6 +22,14 @@ public class Token implements Cloneable{
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public TokenKind getTokenKind() {
+        return tokenKind;
+    }
+
+    public void setTokenKind(TokenKind tokenKind) {
+        this.tokenKind = tokenKind;
     }
 
     @Override
@@ -32,7 +48,7 @@ public class Token implements Cloneable{
 
     @Override
     public String toString() {
-        return content;
+        return String.format("%s [Type: %s]", content, tokenKind.name());
     }
 
     @Override

@@ -1,11 +1,16 @@
 package ecnu.compiling.compilingmate.lex.entity.tree;
 
+import ecnu.compiling.compilingmate.lex.entity.Token;
+
 public abstract class StateTreeNode {
 
     private Integer id;
 
-    public StateTreeNode(Integer id) {
+    private Token token;
+
+    public StateTreeNode(Integer id, Token token) {
         this.id = id;
+        this.token = token;
     }
 
     public Integer getId() {
@@ -14,5 +19,13 @@ public abstract class StateTreeNode {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
     }
 }
