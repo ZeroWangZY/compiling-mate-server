@@ -1,31 +1,51 @@
 package ecnu.compiling.compilingmate.lex.policy.rule;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
-import ecnu.compiling.compilingmate.lex.entity.Token;
-import ecnu.compiling.compilingmate.lex.entity.TokenKind;
+import ecnu.compiling.compilingmate.lex.entity.token.LanguageDefinition;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenKind;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 public abstract class Rule {
 
-    protected Map<String, TokenKind> operators;
+    protected Map<String, LanguageDefinition> operators;
 
-    protected Map<String, TokenKind> normalCharacters;
+    protected Map<String, LanguageDefinition> normalCharacters;
 
-    protected Map<String, TokenKind> specialCharacters;
+    protected Map<String, LanguageDefinition> specialCharacters;
 
     protected Token phraseBreaker;
 
     protected Token emptyInput;
 
-    public Rule() {
+    public Rule(Set<LanguageDefinition> defSet) {
         operators = new HashMap<>();
         normalCharacters = new HashMap<>();
         specialCharacters = new HashMap<>();
         emptyInput = LexConstants.EMPTY;
+        for (LanguageDefinition tokenType : defSet){
+            switch (tokenType.getTokenKind()){
+                case KEYWORD:
+                case SPECIAL_VALUE:
+                    this.addSpecialCharacter(tokenType.getReExpression(), tokenType);
+                    break;
+                case OPERATOR:
+                case BRACKET:
+                    this.addOperator(tokenType.getReExpression(), tokenType);
+                    break;
+                case IDENTIFIER:
+                case VALUE:
+                    this.addCharacter(tokenType.getReExpression(), tokenType);
+                    break;
+                case PHRASE_BREAKER:
+                    this.setPhraseBreaker(new Token(tokenType.getName(), tokenType.getReExpression(), tokenType.getTokenKind()));
+                    break;
+            }
+        }
     }
 
     public Token getEmptyInput() {
@@ -36,16 +56,16 @@ public abstract class Rule {
         this.emptyInput = emptyInput;
     }
 
-    public void addOperator(String token, TokenKind tokenKind){
-        operators.put(token, tokenKind);
+    public void addOperator(String token, LanguageDefinition def){
+        operators.put(token, def);
     }
 
-    public void addCharacter(String token, TokenKind tokenKind){
-        normalCharacters.put(token, tokenKind);
+    public void addCharacter(String token, LanguageDefinition def){
+        normalCharacters.put(token, def);
     }
 
-    public void addSpecialCharacter(String token, TokenKind tokenKind){
-        specialCharacters.put(token, tokenKind);
+    public void addSpecialCharacter(String token, LanguageDefinition def){
+        specialCharacters.put(token, def);
     }
 
     public Token getPhraseBreaker() {
@@ -113,35 +133,48 @@ public abstract class Rule {
     }
 
     public boolean isTokenLeagal(Token token){
+        if (token == null || token.getTokenKind() == null || token.getTokenKind().equals(TokenKind.UNKNOWN)){
+            return false;
+        }
         return this.isCharacter(token) || this.isOperator(token) || this.isBreaker(token);
     }
 
-
-    public TokenKind getTokenKind(String token){
-        if (this.isBreaker(token))
-            return TokenKind.PHRASE_BREAKER;
-
-        for (Map.Entry<String, TokenKind> e : this.operators.entrySet()) {
-            if (this.matchKey(e.getKey(), token)){
-                return e.getValue();
-            }
-        }
-        for (Map.Entry<String, TokenKind> e : this.specialCharacters.entrySet()) {
-            if (this.matchKey(e.getKey(), token)){
-                return e.getValue();
-            }
-        }
-        for (Map.Entry<String, TokenKind> e : this.normalCharacters.entrySet()) {
-            if (this.matchKey(e.getKey(), token)){
-                return e.getValue();
-            }
-        }
-
-        return TokenKind.UNKNOWN;
+    public String getDefName(String token){
+        return this.getDefine(token).getName();
     }
 
-    protected boolean matchKey(String key, String token) {
-        return key.equals(token);
+    public TokenKind getTokenKind(String token){
+        return this.getDefine(token).getTokenKind();
+    }
+
+    public LanguageDefinition getDefine(String token){
+        if (this.isBreaker(token))
+            return new LanguageDefinition(phraseBreaker.getName(), phraseBreaker.getContent(), TokenKind.PHRASE_BREAKER);
+
+        if (this.emptyInput.getContent().equals(token))
+            return new LanguageDefinition(emptyInput.getName(), emptyInput.getContent(), TokenKind.SPECIAL_VALUE);
+
+        for (Map.Entry<String, LanguageDefinition> e : this.operators.entrySet()) {
+            if (this.matchKey(e.getKey(), token)){
+                return e.getValue();
+            }
+        }
+        for (Map.Entry<String, LanguageDefinition> e : this.specialCharacters.entrySet()) {
+            if (this.matchKey(e.getKey(), token)){
+                return e.getValue();
+            }
+        }
+        for (Map.Entry<String, LanguageDefinition> e : this.normalCharacters.entrySet()) {
+            if (this.matchKey(e.getKey(), token)){
+                return e.getValue();
+            }
+        }
+
+        return new LanguageDefinition("UNDEFINED", token, TokenKind.UNKNOWN);
+    }
+
+    protected boolean matchKey(String key, String token){
+        return Pattern.matches(key, token);
     }
 
     private boolean existsInSet(Set<String> keys, String target){

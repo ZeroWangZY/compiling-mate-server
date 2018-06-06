@@ -1,6 +1,6 @@
 package ecnu.compiling.compilingmate.lex.entity.tree;
 
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
