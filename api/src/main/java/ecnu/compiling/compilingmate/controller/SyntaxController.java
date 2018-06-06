@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 
-@Controller("/syntax")
+@Controller
+@RequestMapping("/syntax")
 public class SyntaxController {
     @Resource
     SyntaxParsingService syntaxParsingService=new SyntaxParsingServiceImpl();
