@@ -14,15 +14,15 @@ public class REtoDFA {
 	private char rightBracket = ')';
 	private char starSymbol = '*';
 	private char orSymbol = '|';
-	private char andSymbol = '¡¤';
-	private char nullSymbol = '¦Å';
+	private char andSymbol = '.';
+	private char nullSymbol = 'Îµ';
 	private char endSymbol = '#';
 	private String re = null;
-	private String reNow = null; //¼ÓÁËendSymbolµÄre
-	private int number = 1; //ÓÃÓÚ¸øÃ¿¸ö×Ö·û±êºÅ
+	private String reNow = null; //åŠ äº†endSymbolçš„re
+	private int number = 1; //ç”¨äºç»™æ¯ä¸ªå­—ç¬¦æ ‡å·
 	private Node tree = null;
 	private Set<Object>[] followpos = null;
-	private char[] numberToChar = null; //ÏÂ±ê+1=×Ö·û±êºÅ ºÍ×Ö·û¶ÔÓ¦
+	private char[] numberToChar = null; //ä¸‹æ ‡+1=å­—ç¬¦æ ‡å· å’Œå­—ç¬¦å¯¹åº”
 	private ArrayList<Set<Object>> states = new ArrayList<Set<Object>>();
 	
 	REtoDFA() {
@@ -38,7 +38,7 @@ public class REtoDFA {
 
 	@SuppressWarnings("unchecked")
 	public String toDFA(){
-		//¹¹½¨Ê÷
+		//æ„å»ºæ ‘
 		tree = constructTree(0,reNow.length()-1);
 		if (tree == null)
 			return "constructTree failed";
@@ -48,12 +48,12 @@ public class REtoDFA {
 		printLogMessage("constructTree success\n");
 
 		
-		//¼ÆËãnullable£¬firstpos£¬lastpos
+		//è®¡ç®—nullableï¼Œfirstposï¼Œlastpos
 		if (!computeAllNFP(tree))
 			return "computeAllNFP failed";
 		printLogMessage("computeAllNFP success\n");
 		
-		//¼ÆËãfollowpos
+		//è®¡ç®—followpos
 		for (int i = 0;i < followpos.length;i++)
 			followpos[i] = new HashSet<Object>();
 		if (!computeAllFollowPos(tree))
@@ -61,7 +61,7 @@ public class REtoDFA {
 		printFollowPos();
 		printLogMessage("computeAllFollowPos success\n");
 		
-		//Éú³É×´Ì¬±äÇ¨±í
+		//ç”ŸæˆçŠ¶æ€å˜è¿è¡¨
 		if (!constructStates())
 			return "constructStates failed";
 		printLogMessage("constructStates success\n");
@@ -72,7 +72,7 @@ public class REtoDFA {
 	
 	public Node constructTree(int startPosition,int overPosition){
 		/*
-		 * µİ¹é¹¹ÔìREÊ÷
+		 * é€’å½’æ„é€ REæ ‘
 		 */
 		if(startPosition == overPosition){
 			char charNow = reNow.charAt(startPosition);
@@ -158,8 +158,8 @@ public class REtoDFA {
 	}
 	
 	private int getNextPart(int startPostion,int overPosition){
-		/* »ñÈ¡ÏÂÒ»¸öÄ£¿éµÄÖÕµãÎ»ÖÃ£¬
-		 * µÃµ½½á¹ûÎª-1 . .* (...) (...)* |. |.* |(...) |(...)*
+		/* è·å–ä¸‹ä¸€ä¸ªæ¨¡å—çš„ç»ˆç‚¹ä½ç½®ï¼Œ
+		 * å¾—åˆ°ç»“æœä¸º-1 . .* (...) (...)* |. |.* |(...) |(...)*
 		 */
 		char charnow = reNow.charAt(startPostion);
 		if (charnow == leftBracket){
@@ -230,7 +230,7 @@ public class REtoDFA {
 	
 	public boolean computeAllNFP(Node fatherNode){
 		/*
-		 * µİ¹é¼ÆËãËùÓĞ½ÚµãNFP
+		 * é€’å½’è®¡ç®—æ‰€æœ‰èŠ‚ç‚¹NFP
 		 */
 		if (fatherNode != null){
 			boolean result1=computeAllNFP(fatherNode.getLeftNode());
@@ -243,7 +243,7 @@ public class REtoDFA {
 	
 	private void computeNFP(Node fatherNode){
 		/*
-		 * ¼ÆËãnullable¡¢firstpos¡¢lastpos
+		 * è®¡ç®—nullableã€firstposã€lastpos
 		 */
 		if (fatherNode.getKey() == starSymbol){
 			fatherNode.setNullable(true);
@@ -295,7 +295,7 @@ public class REtoDFA {
 	
 	public boolean computeAllFollowPos(Node fatherNode){
 		/*
-		 * µİ¹é¼ÆËãËùÓĞfollowpos
+		 * é€’å½’è®¡ç®—æ‰€æœ‰followpos
 		 */
 		if (fatherNode != null){
 			boolean result1=computeAllFollowPos(fatherNode.getLeftNode());
@@ -308,7 +308,7 @@ public class REtoDFA {
 	
 	private void computeFollowPos(Node fatherNode){
 		/*
-		 * ¼ÆËãfollowpos
+		 * è®¡ç®—followpos
 		 */
 		final Set<Object> lastpos;
 		final Set<Object> firstpos;
@@ -342,7 +342,7 @@ public class REtoDFA {
 		String logMessage = "S0=firstpos(root)="+states.get(0);
 		printLogMessage(logMessage);
 		
-		int markCount = 0; //µ±Ç°markµÄ×´Ì¬
+		int markCount = 0; //å½“å‰markçš„çŠ¶æ€
 		logMessage = "Mark S0";
 		printLogMessage(logMessage);
 		
