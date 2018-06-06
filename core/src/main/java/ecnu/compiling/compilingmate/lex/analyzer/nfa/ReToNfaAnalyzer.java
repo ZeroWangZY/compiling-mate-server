@@ -1,15 +1,11 @@
 package ecnu.compiling.compilingmate.lex.analyzer.nfa;
 
 import ecnu.compiling.compilingmate.lex.analyzer.AbstractAnalyzer;
-import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.exception.BadUserInputException;
 import ecnu.compiling.compilingmate.lex.policy.ScannerFactory;
-import ecnu.compiling.compilingmate.lex.policy.rule.DefaultReRule;
-import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
 import ecnu.compiling.compilingmate.lex.policy.scanner.LexScanner;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 

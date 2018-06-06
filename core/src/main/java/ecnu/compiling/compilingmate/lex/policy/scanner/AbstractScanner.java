@@ -1,7 +1,6 @@
 package ecnu.compiling.compilingmate.lex.policy.scanner;
 
-import com.google.common.collect.Lists;
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.exception.IllegalTokenException;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
 import org.apache.commons.lang3.StringUtils;
@@ -44,7 +43,7 @@ public abstract class AbstractScanner implements LexScanner {
     }
 
     protected Token convert(String str) throws IllegalTokenException{
-        Token token = new Token(str, rule.getTokenKind(str));
+        Token token = new Token(rule.getDefName(str), str, rule.getTokenKind(str));
         if (!rule.isTokenLeagal(token)){
             throw new IllegalTokenException(str);
         }

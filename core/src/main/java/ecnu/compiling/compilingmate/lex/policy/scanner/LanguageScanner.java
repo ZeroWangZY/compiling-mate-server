@@ -1,21 +1,21 @@
 package ecnu.compiling.compilingmate.lex.policy.scanner;
 
 import com.google.common.collect.Lists;
-import ecnu.compiling.compilingmate.lex.entity.Token;
-import ecnu.compiling.compilingmate.lex.entity.TokenKind;
-import ecnu.compiling.compilingmate.lex.entity.tree.TokenizedPhrase;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenKind;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenizedPhrase;
 import ecnu.compiling.compilingmate.lex.exception.IllegalTokenException;
-import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
+import ecnu.compiling.compilingmate.lex.policy.rule.CustomizedRule;
 import ecnu.compiling.compilingmate.lex.policy.rule.SimpleLanguageRule;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
-public class SimpleLanguageScanner extends AbstractScanner {
-    public SimpleLanguageScanner() {
-        super(new SimpleLanguageRule());
+public class LanguageScanner extends AbstractScanner {
+    public LanguageScanner(CustomizedRule rule) {
+        super(rule);
     }
 
     public List<TokenizedPhrase> parseAsPhrases(String input) {
@@ -25,6 +25,8 @@ public class SimpleLanguageScanner extends AbstractScanner {
         for (int i = 0; i < phrases.size(); i++) {
             tokenizedPhrases.add(new TokenizedPhrase(i+1, this.parse(phrases.get(i))));
         }
+
+        Collections.sort(tokenizedPhrases);
         return tokenizedPhrases;
     }
 
@@ -60,7 +62,6 @@ public class SimpleLanguageScanner extends AbstractScanner {
 
     private List<String> doSpit(String smallInput){
         smallInput = StringUtils.deleteWhitespace(smallInput);
-        SimpleLanguageRule simpleLanguageRule = (SimpleLanguageRule) this.rule;
         List<String> results = Lists.newArrayList();
 
         int currentStartIndex = 0;
@@ -69,7 +70,7 @@ public class SimpleLanguageScanner extends AbstractScanner {
 
             while (currentEndIndex > currentStartIndex) {
                 String subStr = smallInput.substring(currentStartIndex, currentEndIndex);
-                TokenKind kind = simpleLanguageRule.getTokenKind(subStr);
+                TokenKind kind = rule.getTokenKind(subStr);
                 if (kind != TokenKind.UNKNOWN) {
                     results.add(subStr);
                     break;
