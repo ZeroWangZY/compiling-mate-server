@@ -144,15 +144,15 @@ components:
         type:
           type: integer
       example:
-        - startSymbol: 'E'
-        - productions:
+        startSymbol: 'E'
+        productions:
           - left: 'E'
             right: 'A B'
           - left: 'A'
             right: 'a'
           - left: 'B'
             right: 'b'
-        - type: 0
+        type: 0
     ReProcessingOutputData:
       type: object
       properties:
