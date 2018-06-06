@@ -53,6 +53,12 @@ paths:
       tags:
         - syntax
       summary: 给定CFG, 获得产生parsing table的过程
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingProcessingInputData'
       responses:
         '200':
           description: success
@@ -121,6 +127,32 @@ components:
       required:
         - tokens
 
+    ParsingProcessingInputData:
+      type: object
+      properties:
+        startSymbol:
+          type: string
+        productions:
+          type: array
+          items:
+            type: object
+            properties:
+              left:
+                type: string
+              right:
+                type: string
+        type:
+          type: integer
+      example:
+        - startSymbol: 'E'
+        - productions:
+          - left: 'E'
+            right: 'A B'
+          - left: 'A'
+            right: 'a'
+          - left: 'B'
+            right: 'b'
+        - type: 0
     ReProcessingOutputData:
       type: object
       properties:
