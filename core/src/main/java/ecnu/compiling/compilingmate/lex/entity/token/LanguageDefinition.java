@@ -27,7 +27,7 @@ public class LanguageDefinition {
     }
 
     public void setReExpression(String re) {
-        this.reExpression = reExpression;
+        this.reExpression = re;
     }
 
     public TokenKind getTokenKind() {
