@@ -1,8 +1,9 @@
 package ecnu.compiling.compilingmate.lex.policy.scanner;
 
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.exception.IllegalTokenException;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,25 +26,24 @@ public abstract class AbstractScanner implements LexScanner {
     }
 
     protected List<String> breakInput(String input){
+        String[] preProcessed = input.split(" ");
+
         List<String> tokens = new ArrayList<>();
-        tokens.add(input);
-        for (Token breaker : rule.getBreakers()) {
-            List<String> newTokens = new ArrayList<>();
-            for (String token : tokens){
-                for (String afterBroken : token.split(breaker.getContent())) {
-                    newTokens.add(afterBroken);
+
+        for (String str : preProcessed) {
+            for (String afterBroken : str.split(this.rule.getPhraseBreaker().getContent())) {
+                if (StringUtils.isNotEmpty(afterBroken)){
+                    tokens.add(afterBroken);
                 }
             }
-
-            tokens = newTokens;
-
         }
+
 
         return tokens;
     }
 
     protected Token convert(String str) throws IllegalTokenException{
-        Token token = new Token(str);
+        Token token = new Token(rule.getDefName(str), str, rule.getTokenKind(str));
         if (!rule.isTokenLeagal(token)){
             throw new IllegalTokenException(str);
         }

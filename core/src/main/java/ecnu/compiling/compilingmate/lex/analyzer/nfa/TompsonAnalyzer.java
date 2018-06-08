@@ -6,6 +6,7 @@ import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.entity.*;
 import ecnu.compiling.compilingmate.lex.entity.graph.NfaState;
 import ecnu.compiling.compilingmate.lex.entity.graph.StateGraph;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 import ecnu.compiling.compilingmate.lex.entity.tree.BranchNode;
 import ecnu.compiling.compilingmate.lex.entity.tree.LeafNode;
 import ecnu.compiling.compilingmate.lex.exception.ConstructStateFailureException;
@@ -42,9 +43,8 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         Stack<StateUnit> unitStack = new Stack<>();
         for (int i = 0; i < suffixExpression.size(); i++) {
             StateGraph graph = null;
-            BranchNode node = new BranchNode(i);
-
             Token character = suffixExpression.get(i);
+            BranchNode node = new BranchNode(i, character);
 
             if (defaultReRule.isNormalCharacter(character)){
 
@@ -280,7 +280,7 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
         start.addNextWithEmptyInput(aLeft);
         aLeft.setStart(false);
         start.addNextWithEmptyInput(bLeft);
-        aLeft.setStart(false);
+        bLeft.setStart(false);
 
         aRight.setEnd(false);
         aRight.addNextWithEmptyInput(end);
@@ -318,8 +318,6 @@ public class TompsonAnalyzer extends ReToNfaAnalyzer {
                                     "Input: stateUnit-[ %s ]",
                             GSON.toJson(stateGraph)));
         }
-
-
 
         NfaState newStart = getNewState();
         NfaState newEnd = getNewState();

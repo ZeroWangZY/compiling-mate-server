@@ -1,10 +1,12 @@
 package ecnu.compiling.compilingmate.lex.policy.rule;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.ReTokenType;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
 
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 /**
  * 单个字母或数字为一个token
@@ -12,32 +14,8 @@ import java.util.Stack;
 public class DefaultReRule extends Rule{
 
     public DefaultReRule(){
-        super();
-        for (LexConstants.Operator operator : LexConstants.Operator.values()){
-            this.addOperator(new Token(operator.getValue()));
-        }
-
-        for (LexConstants.SpecialToken specialToken : LexConstants.SpecialToken.values()){
-            this.addSpecialCharacter(new Token(specialToken.getValue()));
-        }
-
+        super(ReTokenType.getLangDefs());
     }
-
-    @Override
-    public boolean isNormalCharacter(String token){
-        if (token == null || token.length() != 1){
-            return false;
-        }
-
-        return Character.isLetterOrDigit(token.charAt(0));
-    }
-
-    @Override
-    public boolean isNormalCharacter(Token token){
-        if (token == null) return false;
-        return this.isNormalCharacter(token.getContent());
-    }
-
 
     public boolean isAnd(Token input){
         if (input == null) return false;

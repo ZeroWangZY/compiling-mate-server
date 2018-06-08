@@ -53,6 +53,12 @@ paths:
       tags:
         - syntax
       summary: 给定CFG, 获得产生parsing table的过程
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingProcessingInputData'
       responses:
         '200':
           description: success
@@ -121,6 +127,32 @@ components:
       required:
         - tokens
 
+    ParsingProcessingInputData:
+      type: object
+      properties:
+        startSymbol:
+          type: string
+        productions:
+          type: array
+          items:
+            type: object
+            properties:
+              left:
+                type: string
+              right:
+                type: string
+        type:
+          type: integer
+      example:
+        startSymbol: 'E'
+        productions:
+          - left: 'E'
+            right: 'A B'
+          - left: 'A'
+            right: 'a'
+          - left: 'B'
+            right: 'b'
+        type: 0
     ReProcessingOutputData:
       type: object
       properties:
@@ -340,57 +372,7 @@ components:
             - T
             - F
         parseTable:
-          type: array
-          items:
-            type: array
-            items:
-              type: string
-          example:
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '1'
-              - '2'
-              - '3'
-            - - ''
-              - s6
-              - ''
-              - ''
-              - ''
-              - acc
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r2
-              - s7
-              - ''
-              - r2
-              - r2
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r4
-              - r4
-              - ''
-              - r4
-              - r4
-              - ''
-              - ''
-              - ''
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '8'
-              - '2'
-              - '3'
+          $ref: '#/components/schemas/ParseTable'
     NodeEvent:
       type: object
       properties:
@@ -436,3 +418,78 @@ components:
             - .F
             - .(E)
             - .id
+    ParseTable:
+      type: object
+      properties:
+        table:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        conflict:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+              col:
+                type: integer
+              content:
+                type: array
+                items:
+                  type: string
+      example:
+        table:
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '1'
+            - '2'
+            - '3'
+          - - ''
+            - s6
+            - ''
+            - ''
+            - ''
+            - acc
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r2
+            - s7
+            - ''
+            - r2
+            - r2
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r4
+            - r4
+            - ''
+            - r4
+            - r4
+            - ''
+            - ''
+            - ''
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '8'
+            - '2'
+            - '3'
+        conflict:
+          - row: 4
+            col: 5
+            content:
+              - s5
+              - r3

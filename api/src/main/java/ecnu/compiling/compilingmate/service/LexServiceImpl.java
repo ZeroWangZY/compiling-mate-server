@@ -7,8 +7,14 @@ import ecnu.compiling.compilingmate.lex.constants.LexConstants;
 import ecnu.compiling.compilingmate.lex.dto.NfaToDfaDto;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.entity.graph.*;
+import ecnu.compiling.compilingmate.lex.entity.token.LanguageDefinition;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenizedPhrase;
+import ecnu.compiling.compilingmate.lex.policy.rule.CustomizedRule;
 import ecnu.compiling.compilingmate.lex.policy.rule.DefaultReRule;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
+import ecnu.compiling.compilingmate.lex.policy.scanner.LanguageScanner;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,6 +61,16 @@ public class LexServiceImpl implements LexService{
         dfaData.setStates(flatDState(dto.getdStates()));
 
         return dfaData;
+    }
+
+    @Override
+    public List<TokenizedPhrase> scanCodeByRule(String code, Set<LanguageDefinition> definitions) {
+        if (CollectionUtils.isEmpty(definitions)){
+
+        }
+        CustomizedRule rule = new CustomizedRule(definitions);
+        LanguageScanner scanner = new LanguageScanner(rule);
+        return scanner.parseAsPhrases(code);
     }
 
     private TompsonData toTompsonData(ReToNfaDto dto){
@@ -108,7 +124,7 @@ public class LexServiceImpl implements LexService{
         link.setFrom(edge.getFrom());
         link.setTo(edge.getTo());
 
-        if (!LexConstants.SpecialToken.EMPTY.getValue().equals(edge.getTag().getContent())){
+        if (!LexConstants.EMPTY.getContent().equals(edge.getTag().getContent())){
             link.setTag(edge.getTag().getContent());
         }
 
