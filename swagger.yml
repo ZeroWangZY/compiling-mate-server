@@ -48,6 +48,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReProcessingOutputData'
+  /syntax/parsingLL1Output:
+    post:
+      tags:
+        - syntax
+      summary: 给定CFG，利用LL1算法获得产生parsing table的过程
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingProcessingInputData'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  data: 
+                    $ref: '#/components/schemas/ParsingLL1OutputData'
+                  message:
+                    type: string
+                    example: ''
   /syntax/parsingProcessingOutput:
     post:
       tags:
@@ -303,7 +330,81 @@ components:
                 moveBy: b
                 moveTo: 2
 
-
+    ParsingLL1OutputData:
+      type: object
+      properties:
+        firsts:
+          type: object
+          example:
+            F:
+              - '('
+              - 'id'
+            T':
+              - '*'
+              - 'epsilon'
+        follows:
+          type: object
+          example:
+            E:
+              - ')'
+              - '$'
+            T:
+              - '+'
+              - ')'
+              - '$'
+        terminals:
+          type: array
+          items:
+            type: string
+          example:
+            - 'id'
+            - '+'
+            - '*'
+            - '('
+            - ')'
+            - '$'
+        nonTerminals:
+          type: array
+          items:
+            type: string
+          example:
+            - 'E'
+            - "E'"
+            - 'T'
+            - "T'"
+            - 'F'
+        parseTable:
+          type: array
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                production:
+                  type: object
+                  properties:
+                    left:
+                      type: string
+                    right:
+                      type: string
+                reason:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: [first, follow]
+                      key:
+                        type: string
+          example:
+            - - production:
+                  left: E
+                  right: TE'
+                reason:
+                  type: first
+                  key: E
+        
     ParsingProcessingOutputData:
       type: object
       properties:
