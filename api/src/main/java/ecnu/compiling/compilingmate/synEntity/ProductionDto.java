@@ -19,4 +19,9 @@ public class ProductionDto {
     public void setRight(String right) {
         this.right = right;
     }
+
+    public String[] getRightStrs(){
+        String [] strs = right.split("\\s");
+        return strs;
+    }
 }

@@ -1,8 +1,6 @@
 package ecnu.compiling.compilingmate.service;
 
-import ecnu.compiling.compilingmate.synEntity.Node;
-import ecnu.compiling.compilingmate.synEntity.ParseTable;
-import ecnu.compiling.compilingmate.synEntity.TreeStep;
+import ecnu.compiling.compilingmate.synEntity.*;
 import ecnu.compiling.compilingmate.syntax.analyzer.LRParser;
 import ecnu.compiling.compilingmate.syntax.analyzer.SLRParser;
 import ecnu.compiling.compilingmate.syntax.entity.*;
@@ -13,47 +11,33 @@ import java.util.*;
 @Service("syntaxParsingService")
 public class SyntaxParsingServiceImpl implements SyntaxParsingService{
     @Override
-    public Map<String,Object> getSlrParsingOutput(int type){ //0:slr,1:lr
+    public Map<String,Object> getParsingOutput(RequestDto requestDto){ //0:slr,1:lr
         //入参
 //        java.util.List<Production> productions = new ArrayList<>();
-//        java.util.List<String> t=Arrays.asList("id","+","*","(",")","$");
-//        List<String> nt=Arrays.asList("E","T","F");
-//        productions.add(new Production("E'", new String[]{"E"}));
-//        productions.add(new Production("E", new String[]{"E", "+", "T"}));
-//        productions.add(new Production("E", new String[]{"T"}));
-//        productions.add(new Production("T", new String[]{"T", "*", "F"}));
-//        productions.add(new Production("T", new String[]{"F"}));
-//        productions.add(new Production("F", new String[]{"(", "E", ")"}));
-//        productions.add(new Production("F", new String[]{"id"}));
-//        String startSymbol="E'";
 
-        java.util.List<Production> productions = new ArrayList<>();
-        List<String> nt=Arrays.asList(new String[]{"S","L","R"});
-        List<String>  t=Arrays.asList(new String[]{"=","*","id","$"});
 
-        productions.add(new Production("S'",new String[]{"S"}));
-        productions.add(new Production("S",new String[]{"L","=","R"}));
-        productions.add(new Production("S",new String[]{"R"}));
-        productions.add(new Production("L",new String[]{"*","R"}));
-        productions.add(new Production("L",new String[]{"id"}));
-        productions.add(new Production("R",new String[]{"L"}));
 
-        String startSymbol="S'";
+        ProductionList productionList=new ProductionList(requestDto.getProductions(),requestDto.getStartSymbol());
+        List<Production> productions=productionList.getProductions();
+        List<String> t=productionList.getTs();
+        List<String> nt=productionList.getNts();
+
+        String startSymbol=requestDto.getStartSymbol()+"'";
 
 
         Map<String,Object> data=new HashMap<>();
         List<Goto> gotoList=new ArrayList<>();
         Map<String,Object> resultMap;
         ParsingTable parsingTable;
-        if(type==0) {
+        if(requestDto.getType()==0) {
             resultMap = new SLRParser().parse(productions, nt, t, startSymbol, gotoList);
             parsingTable = (ParsingTable) resultMap.get("parsingTable");
-            data.put("treeSteps", getLr0TreeSteps(productions, nt, t, "E'", gotoList, (List<LR0Items>) resultMap.get("itemsList")));
+            data.put("treeSteps", getLr0TreeSteps(productions, nt, t, startSymbol, gotoList, (List<LR0Items>) resultMap.get("itemsList")));
         }
         else{
             resultMap = new LRParser().parse(productions, nt, t, startSymbol, gotoList);
             parsingTable = (ParsingTable) resultMap.get("parsingTable");
-            data.put("treeSteps", getLr1TreeSteps(productions, nt, t, "S'", gotoList, (List<LR1Items>) resultMap.get("itemsList")));
+            data.put("treeSteps", getLr1TreeSteps(productions, nt, t, startSymbol, gotoList, (List<LR1Items>) resultMap.get("itemsList")));
         }
 
         data.put("symbols",parsingTable.getSymbolList().toArray());
@@ -87,6 +71,17 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
             treeSteps[i+1]=new TreeStep("add",node);
         }
         return treeSteps;
+    }
+
+
+    @Override
+    public List<Production> productionProcess(List<ProductionDto> productionDtos,String startSymbol){
+        List<Production> productions=new ArrayList<>();
+        productions.add(new Production(startSymbol+"'",new String[]{startSymbol}));
+        for(ProductionDto productionDto:productionDtos){
+            productions.add(new Production(productionDto.getLeft(),productionDto.getRightStrs()));
+        }
+        return productions;
     }
 
 
