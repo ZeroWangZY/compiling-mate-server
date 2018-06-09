@@ -329,6 +329,34 @@ components:
               - moveFrom: 4
                 moveBy: b
                 moveTo: 2
+        dfaToDfaData:
+          type: object
+          example:
+            reTree:
+              id: 1
+              tag: "|"
+              children:
+                - id: 2
+                  tag: "*"
+                - id: 3
+                  tag: "a"
+            tableMap:
+              1:
+                n: "1"
+                nullable: false
+                firstPos:
+                  - 1
+                lastPos:
+                  - 2
+              2:
+                n: "2"
+                nullable: true
+                firstPos:
+                  - 1
+                  - 2
+                lastPos:
+                  - 2
+                  - 3
 
     ParsingLL1OutputData:
       type: object
@@ -404,7 +432,7 @@ components:
                 reason:
                   type: first
                   key: E
-        
+
     ParsingProcessingOutputData:
       type: object
       properties:
