@@ -2,14 +2,16 @@ package ecnu.compiling.compilingmate.lex.directlymethod;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 public class REtoDFA {
-	
+	static REtoDFA rEtoDFASingleton = null;
 	private char leftBracket = '(';
 	private char rightBracket = ')';
 	private char starSymbol = '*';
@@ -24,16 +26,31 @@ public class REtoDFA {
 	private Set<Object>[] followpos = null;
 	private char[] numberToChar = null; //下标+1=字符标号 和字符对应
 	private ArrayList<Set<Object>> states = new ArrayList<Set<Object>>();
+	private Map<String, Object> result = new HashMap<>();
+	private int logcount = 1;
 	
-	REtoDFA() {
+	private REtoDFA(){
 		printLogMessage("RetoDFA constructed:NULL");
 	}
 	
-	REtoDFA(String re) {
+	private REtoDFA(String re) {
 		this.re = re.replaceAll(String.valueOf(endSymbol),"");
 		this.reNow =this.re+endSymbol;
 		printLogMessage("RetoDFA constructed:"+this.re);
 		printLogMessage("RetoDFA add endSymbol:"+reNow);
+	}
+	
+	static public REtoDFA getREtoDFA(){
+		if (rEtoDFASingleton == null)
+			return new REtoDFA();
+		return rEtoDFASingleton;
+	}
+	
+	static public REtoDFA getREtoDFA(String re){
+		if (rEtoDFASingleton == null)
+			return new REtoDFA(re);
+		rEtoDFASingleton.setRe(re);
+		return rEtoDFASingleton;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,9 +61,9 @@ public class REtoDFA {
 			return "constructTree failed";
 		followpos = new Set[tree.getRightNode().getNumber()];
 		numberToChar = new char[tree.getRightNode().getNumber()];
-		printTree(); 
+		//printTree(); 
+		result.put("Tree", getTree());
 		printLogMessage("constructTree success\n");
-
 		
 		//计算nullable，firstpos，lastpos
 		if (!computeAllNFP(tree))
@@ -94,7 +111,6 @@ public class REtoDFA {
 				leftNodes = new Node(starSymbol);
 				Node childNode =constructTree(startPosition, nextPosition-1);
 				if ( childNode != null){
-					childNode.setFatherNode(leftNodes);
 					leftNodes.setLeftNode(childNode);
 				}
 				else 
@@ -130,7 +146,6 @@ public class REtoDFA {
 					rightNodes = new Node(starSymbol);
 					Node childNode =constructTree(startPosition, nextPosition-1);
 					if ( childNode != null){
-						childNode.setFatherNode(leftNodes);
 						rightNodes.setLeftNode(childNode);
 					}
 					else 
@@ -146,9 +161,7 @@ public class REtoDFA {
 				if (rightNodes == null)
 					return null;
 				fatherNode.setLeftNode(leftNodes);
-				leftNodes.setFatherNode(fatherNode);
 				fatherNode.setRightNode(rightNodes);
-				rightNodes.setFatherNode(fatherNode);
 				leftNodes = fatherNode;
 				fatherNode = null;
 				rightNodes = null;
@@ -406,12 +419,55 @@ public class REtoDFA {
 		this.followpos = null;
 		this.numberToChar = null;
 		this.states = new ArrayList<Set<Object>>();
+		this.result = new HashMap<>();
+		this.logcount = 1;
 	}
 
 	public void printLogMessage (String logMessage){
 		System.out.println(logMessage);
+		result.put("Log"+logcount++, logMessage);
 	}
 	
+	public Map<String, Object> getResult() {
+		return result;
+	}
+
+	public void setResult(Map<String, Object> result) {
+		this.result = result;
+	}
+
+	public int getLogcount() {
+		return logcount;
+	}
+
+	public void setLogcount(int logcount) {
+		this.logcount = logcount;
+	}
+
+	public String getReNow() {
+		return reNow;
+	}
+
+	public void setReNow(String reNow) {
+		this.reNow = reNow;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
+	public ArrayList<Set<Object>> getStates() {
+		return states;
+	}
+
+	public void setStates(ArrayList<Set<Object>> states) {
+		this.states = states;
+	}
+
 	public Node getTree() {
 		return tree;
 	}
@@ -500,7 +556,6 @@ class Node{
 	private int number=-1;
 	private Node leftNode = null;
 	private Node rightNode = null;
-	private Node fatherNode = null;
 	private boolean nullable = false;
 	private Set<Object> firstpos = new HashSet<Object>();
 	private Set<Object> lastpos = new HashSet<Object>();
@@ -519,7 +574,6 @@ class Node{
 		this.key = key;
 		this.leftNode = leftNode;
 		this.rightNode = rightNode;
-		this.fatherNode = fatherNode;
 	}
 	
 	@Override
@@ -552,14 +606,6 @@ class Node{
 
 	public void setRightNode(Node rightNode) {
 		this.rightNode = rightNode;
-	}
-
-	public Node getFatherNode() {
-		return fatherNode;
-	}
-
-	public void setFatherNode(Node fatherNode) {
-		this.fatherNode = fatherNode;
 	}
 
 	public boolean isNullable() {

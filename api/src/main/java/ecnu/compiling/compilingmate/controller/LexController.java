@@ -3,6 +3,7 @@ package ecnu.compiling.compilingmate.controller;
 import ecnu.compiling.compilingmate.entity.DfaData;
 import ecnu.compiling.compilingmate.entity.Result;
 import ecnu.compiling.compilingmate.entity.TompsonData;
+import ecnu.compiling.compilingmate.lex.directlymethod.REtoDFA;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
 import ecnu.compiling.compilingmate.service.LexService;
@@ -39,4 +40,24 @@ public class LexController {
         return result;
     }
 
+    @RequestMapping("/retoDFAOutput")
+    @ResponseBody
+    public Result retoDFAOutput(@RequestParam("input") String regularExpression){
+        Result result = new Result();
+
+        try {
+        	REtoDFA rEtoDFA = REtoDFA.getREtoDFA(regularExpression);
+        	if (rEtoDFA.toDFA() == "success"){
+            	result.setSuccess(true);
+            	result.setData(rEtoDFA.getResult());
+        	}
+        	else 
+        		result.setSuccess(false);
+        } catch (Exception e){
+            result.setSuccess(false);
+            result.setMsg(e.getMessage());
+        }
+
+        return result;
+    }
 }
