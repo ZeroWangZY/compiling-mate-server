@@ -2,11 +2,9 @@ package ecnu.compiling.compilingmate.lex.directlymethod;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -26,8 +24,7 @@ public class REtoDFA {
 	private Set<Object>[] followpos = null;
 	private char[] numberToChar = null; //下标+1=字符标号 和字符对应
 	private ArrayList<Set<Object>> states = new ArrayList<Set<Object>>();
-	private Map<String, Object> result = new HashMap<>();
-	private int logcount = 1;
+	private ArrayList<Object> result= new ArrayList<>();
 	
 	private REtoDFA(){
 		printLogMessage("RetoDFA constructed:NULL");
@@ -62,7 +59,7 @@ public class REtoDFA {
 		followpos = new Set[tree.getRightNode().getNumber()];
 		numberToChar = new char[tree.getRightNode().getNumber()];
 		//printTree(); 
-		result.put("Tree", getTree());
+		result.add(getTree());
 		printLogMessage("constructTree success\n");
 		
 		//计算nullable，firstpos，lastpos
@@ -304,6 +301,7 @@ public class REtoDFA {
 		String logMessage =fatherNode.toString()+":"+fatherNode.isNullable()+" "
 				+fatherNode.getFirstpos()+" "+fatherNode.getLastpos();
 		printLogMessage("REtoDFA computeNFPresult:"+logMessage);
+		insertToResult(logMessage);
 	}
 	
 	public boolean computeAllFollowPos(Node fatherNode){
@@ -340,6 +338,7 @@ public class REtoDFA {
 			if(followpos[n-1].addAll(firstpos)){
 			String logMessage = "followpos["+(n)+"]="+followpos[n-1];
 			printLogMessage("REtoDFA computeFollowPosResult:"+logMessage);
+			insertToResult(logMessage);
 			}
 		}
 	}
@@ -390,10 +389,13 @@ public class REtoDFA {
 						states.add(newstateSet);
 				}
 				printLogMessage(logMessage);
+				insertToResult(logMessage);
 				logMessage = new String();
 			}
-			if (++markCount < states.size())
+			if (++markCount < states.size()){
 				printLogMessage("Mark S"+markCount);
+				insertToResult("Mark S"+markCount);
+			}
 		}
 		return true;
 	}
@@ -419,29 +421,23 @@ public class REtoDFA {
 		this.followpos = null;
 		this.numberToChar = null;
 		this.states = new ArrayList<Set<Object>>();
-		this.result = new HashMap<>();
-		this.logcount = 1;
+		this.result = new ArrayList<>();
 	}
 
 	public void printLogMessage (String logMessage){
 		System.out.println(logMessage);
-		result.put("Log"+logcount++, logMessage);
 	}
 	
-	public Map<String, Object> getResult() {
+	public void insertToResult (String logMessage){
+		result.add(logMessage);
+	}
+	
+	public ArrayList<Object> getResult() {
 		return result;
 	}
 
-	public void setResult(Map<String, Object> result) {
+	public void setResult(ArrayList<Object> result) {
 		this.result = result;
-	}
-
-	public int getLogcount() {
-		return logcount;
-	}
-
-	public void setLogcount(int logcount) {
-		this.logcount = logcount;
 	}
 
 	public String getReNow() {
