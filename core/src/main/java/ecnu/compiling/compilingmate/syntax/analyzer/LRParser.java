@@ -8,6 +8,16 @@ import static ecnu.compiling.compilingmate.syntax.utils.Utils.*;
 
 public class LRParser implements BottomUpParser<LR1Items>{
     @Override
+    public Map<String, Object> parse(List<Production> productions, List<String> nt, List<String> t, String startSymbol, List<Goto> gotoList) {
+        Map<String, Object> result=new HashMap<>();
+        List<LR1Items> lr1ItemsList=constructItems(productions,nt,t,startSymbol,gotoList);
+        ParsingTable parsingTable=constructParsingTable(t, nt, lr1ItemsList,gotoList,  productions, startSymbol);
+        result.put("itemsList",lr1ItemsList);
+        result.put("parsingTable",parsingTable);
+        return result;
+    }
+
+    @Override
     public List<LR1Items> constructItems(List<Production> productions,List<String> nt,List<String> t,String startSymbol,List<Goto> gotoList) {
         List<LR1Items> itemsList=new ArrayList<>(); // 已找到的items
         Queue<LR1Items> waitingItems=new LinkedList<>(); //BFS，用队列记录待寻找closure的项
