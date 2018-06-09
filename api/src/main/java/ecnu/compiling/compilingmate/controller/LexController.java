@@ -7,9 +7,14 @@ import ecnu.compiling.compilingmate.lex.directlymethod.REtoDFA;
 import ecnu.compiling.compilingmate.lex.dto.ReToNfaDto;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
 import ecnu.compiling.compilingmate.service.LexService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -40,9 +45,11 @@ public class LexController {
         return result;
     }
 
-    @RequestMapping("/retoDFAOutput")
+    @RequestMapping(value = "/REtoDFAOutput", method = RequestMethod.POST)
     @ResponseBody
-    public Result retoDFAOutput(@RequestParam("input") String regularExpression){
+    public Result retoDFAOutput(@RequestBody String json) throws JSONException{
+    	JSONObject jsonObj = new JSONObject(json);
+        String regularExpression = jsonObj.getString("input");
         Result result = new Result();
 
         try {
