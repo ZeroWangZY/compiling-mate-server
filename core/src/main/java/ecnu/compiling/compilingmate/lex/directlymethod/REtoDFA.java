@@ -16,7 +16,7 @@ public class REtoDFA {
 	private char rightBracket = ')';
 	private char starSymbol = '*';
 	private char orSymbol = '|';
-	private char andSymbol = '·';
+	private char andSymbol = '.';
 	private char nullSymbol = 'ε';
 	private char endSymbol = '#';
 	private String re = null;

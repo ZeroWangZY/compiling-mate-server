@@ -1,13 +1,15 @@
 package ecnu.compiling.compilingmate.lex.entity.tree;
 
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BranchNode extends StateTreeNode {
     private List<StateTreeNode> children;
 
-    public BranchNode(Integer id){
-        super(id);
+    public BranchNode(Integer id, Token token){
+        super(id, token);
         this.children = new ArrayList<>();
     }
 
@@ -15,4 +17,11 @@ public class BranchNode extends StateTreeNode {
         children.add(child);
     }
 
+    public List<StateTreeNode> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<StateTreeNode> children) {
+        this.children = children;
+    }
 }

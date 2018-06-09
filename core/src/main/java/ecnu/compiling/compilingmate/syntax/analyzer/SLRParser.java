@@ -8,12 +8,25 @@ import java.util.*;
 import static ecnu.compiling.compilingmate.syntax.utils.Utils.getFollowSet;
 
 public class SLRParser implements BottomUpParser<LR0Items>{
+
     @Override
-    public List<LR0Items> constructItems(List<Production> productions, List<String> nt, List<String> t,String startSymbol) {
+    public Map<String,Object> parse(List<Production> productions, List<String> nt, List<String> t,String startSymbol, List<Goto> gotoList){
+        List<LR0Items> lr0ItemsList=constructItems(productions,nt,t,startSymbol,gotoList);
+        ParsingTable parsingTable=constructParsingTable(t,nt,lr0ItemsList,gotoList,productions,startSymbol);
+        parsingTable.printTable();
+        Map<String,Object> resultMap=new HashMap<>();
+        resultMap.put("itemsList",lr0ItemsList);
+        resultMap.put("parsingTable",parsingTable);
+        String[] input = {"id","*","id","+","id"};
+        searchTable(productions,input,parsingTable);
+        return resultMap;
+    }
+
+    @Override
+    public List<LR0Items> constructItems(List<Production> productions, List<String> nt, List<String> t,String startSymbol, List<Goto> gotoList) {
         String[] input = {"id","*","id","+","id"};
         //计算items
         List<LR0Items> itemList = new ArrayList<>(); //记录最终items
-        List<Goto> gotoList=new ArrayList<>(); //goto(begin,end,X)
         //设置初始状态I0
         LR0Items i0=new LR0Items();
         for(Production p:productions){
@@ -50,9 +63,6 @@ public class SLRParser implements BottomUpParser<LR0Items>{
             System.out.println(lr0Item);
         }
         System.out.println(gotoList);
-        ParsingTable parsingTable=constructParsingTable(t,nt,itemList,gotoList,productions,startSymbol);
-        parsingTable.printTable();
-        searchTable(productions,input,parsingTable);
         return itemList;
     }
 
@@ -69,6 +79,7 @@ public class SLRParser implements BottomUpParser<LR0Items>{
             //shift j
             for (Goto gotoUnit : gotoList) {
                 if (gotoUnit.getBeginIndex() == itemsList.indexOf(item)) {
+                    //conflict判断在setTable中处理
                     actionTable.setTable(gotoUnit.getEndIndex(), 1, itemsList.indexOf(item), gotoUnit.getX());
                 }
             }
@@ -82,7 +93,7 @@ public class SLRParser implements BottomUpParser<LR0Items>{
                     }
                 }
                 //accept
-                if (p.getLeft().equals(startSymbol)) {
+                if (p.getLeft().equals(startSymbol) && p.getRight().length==p.getPos()) {
                     actionTable.setTable(0, 2, itemsList.indexOf(item), "$");
                 }
             }

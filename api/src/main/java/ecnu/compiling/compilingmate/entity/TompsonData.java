@@ -1,5 +1,6 @@
 package ecnu.compiling.compilingmate.entity;
 
+import ecnu.compiling.compilingmate.lex.entity.tree.BranchNode;
 import ecnu.compiling.compilingmate.lex.entity.tree.StateTreeNode;
 
 import java.util.Map;
