@@ -1,11 +1,13 @@
 package ecnu.compiling.compilingmate.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
-class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private Environment environment = new Environment();
+    private ArrayList<String> output = new ArrayList<>();
 
-    void interpret(List<Stmt> statements) {
+    public void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
                 execute(statement);
@@ -62,6 +64,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitPrintStmt(Stmt.Print stmt) {
         Object value = evaluate(stmt.expression);
         System.out.println(stringify(value));
+        output.add(stringify(value));
         return null;
     }
 
@@ -200,5 +203,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         return object.toString();
+    }
+
+    public ArrayList<String> getOutput() {
+        return output;
     }
 }

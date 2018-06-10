@@ -5,17 +5,17 @@ import java.util.List;
 
 import static ecnu.compiling.compilingmate.lox.TokenType.*;
 
-class Parser {
+public class Parser {
     private static class ParseError extends RuntimeException {}
 
     private final List<Token> tokens;
     private int current = 0;
 
-    Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    List<Stmt> parse() {
+    public List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(declaration());
