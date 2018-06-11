@@ -45,7 +45,7 @@ public class Lox {
         }
     }
 
-    private static void run(String source) {
+    public static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
