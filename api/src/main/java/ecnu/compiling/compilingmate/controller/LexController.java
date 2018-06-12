@@ -1,16 +1,17 @@
 package ecnu.compiling.compilingmate.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import ecnu.compiling.compilingmate.lex.entity.token.LanguageDefinition;
 import ecnu.compiling.compilingmate.entity.Result;
 import ecnu.compiling.compilingmate.lex.policy.rule.Rule;
 import ecnu.compiling.compilingmate.service.LexService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,11 +23,16 @@ public class LexController {
     @Resource
     LexService lexService;
 
-    @RequestMapping(value = "/scan", method = RequestMethod.POST)
+    @RequestMapping(value = "/scan", method = RequestMethod.GET)
     @ResponseBody
-    public Result scan(@RequestParam(value = "inputCode") String inputCode,
-                       @RequestParam(value = "reDefs")Set<LanguageDefinition> reDefs){
+    public Result scan(@RequestBody JsonObject params){
         Result result = new Result();
+
+        String inputCode = params.get("inputCode").getAsString();
+        Set<LanguageDefinition> reDefs = new HashSet<>();
+        Gson GSON = new Gson();
+        params.get("reDefs").getAsJsonArray().forEach(def -> reDefs.add(GSON.fromJson(def, LanguageDefinition.class)));
+
 
         try {
             result.setSuccess(true);
@@ -39,13 +45,13 @@ public class LexController {
         return result;
     }
 
-    @RequestMapping(value = "/reProcessingOutput", method = RequestMethod.POST)
+    @RequestMapping(value = "/reProcessingOutput", method = RequestMethod.GET)
     @ResponseBody
-    public Result reProcessingOutput(@RequestParam(value = "input") String input, @RequestParam(value = "ruleName", required = false, defaultValue = "") String ruleName){
+    public Result reProcessingOutput(@RequestBody JsonObject params){
         Result result = new Result();
-
+        String input = params.get("input").getAsString();
         try {
-            Rule rule = lexService.getRuleByName(ruleName);
+            Rule rule = lexService.getRuleByName("");
             result.setSuccess(true);
             result.setData(lexService.fullLexAnalyzeByTompsonAndSubsetConstruction(input, rule));
         } catch (Exception e){
