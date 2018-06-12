@@ -14,22 +14,121 @@ public class LL1Parser {
     private String startSymbol;
     private String borderSymbol;
     private Map<String,Map<String,Production>> analysisTable;
+    private String delimeter=" ";
+
+
+    public List<String> getRowIndex(){
+        return nontermDict;
+    }
+    public List<String> getColIndex(){
+        List<String> rtn=new ArrayList<>(terminalDict);
+        rtn.add(borderSymbol);
+        return rtn;
+    }
+    //去掉连续空格以及头尾空格
+    private String strip(String str){
+        while(str.contains("  "))
+            str=str.replace("  "," ");
+        return str.trim();
+    }
+    public List<String> getNonterminals(){
+        return nontermDict;
+    }
+    public List<String> getTerminals(){
+        return terminalDict;
+    }
+    public Map<String,List<String>> getFirstSet(){
+        Map<String,List<String>> rtn=new HashMap<>();
+        for(String key:First.keySet()){
+            Set<String> value=First.get(key);
+            List<String> valueList=new ArrayList<>(value);
+            rtn.put(key,valueList);
+        }
+        return rtn;
+    }
+    public Map<String,List<String>> getFollowSet(){
+        Map<String,List<String>> rtn=new HashMap<>();
+        for(String key:Follow.keySet()){
+            Set<String> value=Follow.get(key);
+            List<String> valueList=new ArrayList<>(value);
+            rtn.put(key,valueList);
+        }
+        return rtn;
+    }
+    public List<List<Map<String,Object>>> getParseTable(){
+        List<List<Map<String,Object>>> rst= new ArrayList<>();
+        List<String> rowIndex=getRowIndex();
+        List<String> colIndex=getColIndex();
+        for(String row:rowIndex){
+            List<Map<String,Object>> line=new ArrayList<>();
+            for(String col:colIndex){
+                Production p =analysisTable.get(row).get(col);
+                line.add(formJsonData(p));
+            }
+            rst.add(line);
+        }
+        return rst;
+    }
+
+    private Map<String,Object> formJsonData(Production p) {
+        Map<String,Object> rtn=new HashMap<>();
+        if(p!=null) {
+            Map<String, String> map1 = new HashMap<>();
+            map1.put("left", p.getLeft());
+            map1.put("right", p.getCandidates().get(0));
+            rtn.put("production", map1);
+            map1 = new HashMap<>();
+            map1.put("type", p.getType());
+            map1.put("key", p.getKey());
+            rtn.put("reason", map1);
+        }
+        return rtn;
+    }
 
     //非LL1型文法抛出错误
-    public LL1Parser() throws Exception{
+    public LL1Parser(String startSymbol, List<Map<String,String>> productions) throws Exception{
         grammar=new HashMap<String, List<String>>();
-        grammar.put("E",new ArrayList<String>(Arrays.asList("TR")));
-        grammar.put("R",new ArrayList<String>(Arrays.asList("+TR","ε")));
-        grammar.put("T",new ArrayList<String>(Arrays.asList("FY")));
-        grammar.put("Y",new ArrayList<String>(Arrays.asList("*FY","ε")));
-        grammar.put("F",new ArrayList<String>(Arrays.asList("(E)","i")));
-        terminalDict=new ArrayList<String>(){{addAll(Arrays.asList("+","(",")","i","*"));}};
-        nontermDict =new ArrayList<String>(){{addAll(Arrays.asList("E","T","R","F","Y"));}};
-        startSymbol="E";
+        this.startSymbol=startSymbol;
         emptySymbol="ε";
         borderSymbol="#";
+        nontermDict=new ArrayList<>();
+        terminalDict=new ArrayList<>();
+        for(Map<String,String> p:productions){
+            String left=strip(p.get("left"));
+            String right=strip(p.get("right"));
+            if(!grammar.containsKey(left))
+                grammar.put(left,new ArrayList<String>(Arrays.asList((right))));
+            else
+                grammar.get(left).add(right);
+            if(!this.nontermDict.contains(left)){
+                nontermDict.add(left);
+            }
+        }
+        for(Map<String,String> p:productions){
+            String right=strip(p.get("right"));
+            String[] rightList=getSymbolList(right);
+            for(String str:rightList){
+                if(!nontermDict.contains(str) && !terminalDict.contains(str) && !str.equals(emptySymbol))
+                    terminalDict.add(str);
+            }
+        }
+
+//        grammar.put("E",new ArrayList<String>(Arrays.asList("TR")));
+//        grammar.put("R",new ArrayList<String>(Arrays.asList("+TR","ε")));
+//        grammar.put("T",new ArrayList<String>(Arrays.asList("FY")));
+//        grammar.put("Y",new ArrayList<String>(Arrays.asList("*FY","ε")));
+//        grammar.put("F",new ArrayList<String>(Arrays.asList("(E)","i")));
+//        terminalDict=new ArrayList<String>(){{addAll(Arrays.asList("+","(",")","i","*"));}};
+//        nontermDict =new ArrayList<String>(){{addAll(Arrays.asList("E","T","R","F","Y"));}};
+//        startSymbol="E";
+//        emptySymbol="ε";
+//        borderSymbol="#";
         initFirst();
         initFollow();
+        System.out.println("终结符："+terminalDict.toString());
+        System.out.println("非终结符："+nontermDict.toString());
+        System.out.println("First集："+First.toString());
+        System.out.println("Follow集："+Follow.toString());
         buildAnalysisTable();
     }
 
@@ -90,9 +189,9 @@ public class LL1Parser {
     //return 是否为LL1文法
     private void buildAnalysisTable() throws Exception{
         analysisTable=new HashMap<>();
-        for(String left:grammar.keySet()){
+        for(String left:nontermDict){
             analysisTable.put(left,new HashMap<>());
-            for(String symbol:nontermDict){
+            for(String symbol:terminalDict){
                 analysisTable.get(left).put(symbol,null);
             }
             analysisTable.get(left).put(borderSymbol,null);
@@ -106,7 +205,7 @@ public class LL1Parser {
                         if(analysisTable.get(left).get(symbol)!=null)
                             throw new Exception("Invalid grammar for LL1");
                         else
-                            analysisTable.get(left).put(symbol, new Production(left, Arrays.asList(candidate)));
+                            analysisTable.get(left).put(symbol, new Production(left, Arrays.asList(candidate),"first",candidate));
                     }
                 }
                 if(tFirst.contains(emptySymbol)){
@@ -115,22 +214,26 @@ public class LL1Parser {
                         if(analysisTable.get(left).get(symbol)!=null)
                             throw new Exception("Invalid grammar for LL1");
                         else
-                            analysisTable.get(left).put(symbol,new Production(left,Arrays.asList(candidate)));
+                            analysisTable.get(left).put(symbol,new Production(left,Arrays.asList(candidate),"follow",left));
                     }
                 }
             }
         }
-//        for(String row: new String[]{"E","R","T","Y","F"}){
-//            for(String col:new String[]{"i","+","*","(",")","#"}){
-//                Production p=analysisTable.get(row).get(col);
-//                if(p!=null)
-//                    System.out.print(p.getLeft()+"→"+p.getCandidates().toString()+"\t\t");
-//                else
-//                    System.out.print("NULL"+"\t\t");
-//            }
-//            System.out.print("\n");
-//        }
+        for(String row: nontermDict){
+            List<String> tmp=new ArrayList<>(terminalDict);
+            tmp.add(borderSymbol);
+            for(String col:tmp){
+                Production p=analysisTable.get(row).get(col);
+                if(p!=null)
+                    System.out.print(p.getLeft()+"→"+p.getCandidates().toString()+"\t\t");
+                else
+                    System.out.print("NULL"+"\t\t");
+            }
+            System.out.print("\n");
+        }
     }
+
+
 
     private void initFollow() {
         Follow=new HashMap<>();
@@ -151,7 +254,7 @@ public class LL1Parser {
                         if(isNonterminal(chList[i])){
                             if(i<chList.length-1) {
                                 Follow.get(chList[i]).addAll(stripEmpty(First.get(chList[i + 1])));
-                                String next=String.join("",new ArrayList<>(Arrays.asList(chList)).subList(i+1,chList.length));
+                                String next=String.join(delimeter,new ArrayList<>(Arrays.asList(chList)).subList(i+1,chList.length));
                                 if(First.containsKey(next) && First.get(next).contains(emptySymbol)){
                                     if(Follow.containsKey(left))
                                         Follow.get(chList[i]).addAll(Follow.get(left));
@@ -276,7 +379,7 @@ public class LL1Parser {
     }
 
     private String[] getSymbolList(String s) {
-        return s.split("");
+        return s.split(delimeter);
     }
 
     private String getFirstSymbol(String s) {
@@ -287,13 +390,19 @@ public class LL1Parser {
         return s.equals(emptySymbol);
     }
 
+    //放在解析表格子中
     class Production{
         private String left;
         private List<String> candidates;
+        //存储由谁推导出的该产生式
+        private String type;//"first" or "follow"
+        private String key;//first or follow 集的key
 
-        public Production(String left, List<String> candidates) {
+        public Production(String left, List<String> candidates, String type,String key) {
             this.left = left;
             this.candidates = candidates;
+            this.type=type;
+            this.key=key;
         }
 
         public String getLeft() {
@@ -302,6 +411,22 @@ public class LL1Parser {
 
         public List<String> getCandidates() {
             return candidates;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getKey() {
+            return key;
         }
     }
 
@@ -312,5 +437,4 @@ public class LL1Parser {
 //        }catch (Exception e){e.printStackTrace();}
 //    }
 }
-
 

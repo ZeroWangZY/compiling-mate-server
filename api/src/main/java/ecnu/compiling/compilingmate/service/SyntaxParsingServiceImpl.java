@@ -1,6 +1,7 @@
 package ecnu.compiling.compilingmate.service;
 
 import ecnu.compiling.compilingmate.synEntity.*;
+import ecnu.compiling.compilingmate.syntax.analyzer.LL1Parser;
 import ecnu.compiling.compilingmate.syntax.analyzer.LRParser;
 import ecnu.compiling.compilingmate.syntax.analyzer.SLRParser;
 import ecnu.compiling.compilingmate.syntax.entity.*;
@@ -84,5 +85,25 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         return productions;
     }
 
-
+    public Map<String,Object> getParsingLL1Output(String startSymbol, List<Map<String,String>> productions, String type){
+        Map<String,Object> data=new HashMap<>();
+        try {
+            LL1Parser parser = new LL1Parser(startSymbol,productions);
+            List<String> terminals=parser.getTerminals();
+            List<String> nonTerminals=parser.getNonterminals();
+            Map<String,List<String>> firstSet=parser.getFirstSet();
+            Map<String,List<String>> followSet=parser.getFollowSet();
+            List<List<Map<String,Object>>> parseTable=parser.getParseTable();
+            List<String> rowIndex=parser.getRowIndex();
+            List<String> colIndex=parser.getColIndex();
+            data.put("firsts",firstSet);
+            data.put("follows",followSet);
+            data.put("terminals",terminals);
+            data.put("nonTerminals",nonTerminals);
+            data.put("parseTable",parseTable);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return data;
+    }
 }
