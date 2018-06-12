@@ -24,7 +24,7 @@ public class REtoDFA {
 	private Set<Object>[] followpos = null;
 	private char[] numberToChar = null; //下标+1=字符标号 和字符对应
 	private ArrayList<Set<Object>> states = new ArrayList<Set<Object>>();
-	private ArrayList<Object> result = new ArrayList<>();
+	private Result result = null;
 	private ArrayList<Object> NFLresult = new ArrayList<>();
 	private ArrayList<Object> followresult = new ArrayList<>();
 	private ArrayList<Object> tableresult = new ArrayList<>();
@@ -61,13 +61,11 @@ public class REtoDFA {
 			return "constructTree failed";
 		followpos = new Set[tree.getRightNode().getNumber()];
 		numberToChar = new char[tree.getRightNode().getNumber()];
-		insertToResult(tree);
 		printLogMessage("constructTree success\n");
 		
 		//计算nullable，firstpos，lastpos
 		if (!computeAllNFL(tree))
 			return "computeAllNFL failed";
-		insertToResult(NFLresult);
 		printLogMessage("computeAllNFL success\n");
 
 		
@@ -76,16 +74,15 @@ public class REtoDFA {
 			followpos[i] = new HashSet<Object>();
 		if (!computeAllFollowPos(tree))
 			return "computeAllFollowPos failed";
-		insertToResult(followresult);
 		printFollowPos();
 		printLogMessage("computeAllFollowPos success\n");
 		
 		//生成状态变迁表
 		if (!constructStates())
 			return "constructStates failed";
-		insertToResult(tableresult);
 		printLogMessage("constructStates success\n");
 		
+		result = new Result(tree, NFLresult, followresult, tableresult);
 		printLogMessage("REtoDFA success\n");
 		return "success";
 	}
@@ -432,7 +429,7 @@ public class REtoDFA {
 		this.followpos = null;
 		this.numberToChar = null;
 		this.states = new ArrayList<Set<Object>>();
-		this.result = new ArrayList<>();
+		this.result = null;
 		this.NFLresult = new ArrayList<>();
 		this.followresult = new ArrayList<>();
 		this.tableresult = new ArrayList<>();
@@ -441,10 +438,6 @@ public class REtoDFA {
 
 	public void printLogMessage (String logMessage){
 		System.out.println(logMessage);
-	}
-	
-	public void insertToResult (Object object){
-		result.add(object);
 	}
 	
 	public void insertNFLToNFLResult(Object object){
@@ -459,11 +452,11 @@ public class REtoDFA {
 		tableresult.add(object);
 	}
 	
-	public ArrayList<Object> getResult() {
+	public Result getResult() {
 		return result;
 	}
 
-	public void setResult(ArrayList<Object> result) {
+	public void setResult(Result result) {
 		this.result = result;
 	}
 
@@ -841,6 +834,55 @@ class TableInfo{
 
 	public void setMoveInfo(MoveInfo moveInfo) {
 		this.moveInfo = moveInfo;
+	}
+	
+}
+
+class Result{
+	private Node tree = null;
+	private ArrayList<Object> NFLresult = new ArrayList<>();
+	private ArrayList<Object> followresult = new ArrayList<>();
+	private ArrayList<Object> tableresult = new ArrayList<>();
+	
+	public Result(Node tree, ArrayList<Object> nFLresult, ArrayList<Object> followresult,
+			ArrayList<Object> tableresult) {
+		super();
+		this.tree = tree;
+		NFLresult = nFLresult;
+		this.followresult = followresult;
+		this.tableresult = tableresult;
+	}
+
+	public Node getTree() {
+		return tree;
+	}
+
+	public void setTree(Node tree) {
+		this.tree = tree;
+	}
+
+	public ArrayList<Object> getNFLresult() {
+		return NFLresult;
+	}
+
+	public void setNFLresult(ArrayList<Object> nFLresult) {
+		NFLresult = nFLresult;
+	}
+
+	public ArrayList<Object> getFollowresult() {
+		return followresult;
+	}
+
+	public void setFollowresult(ArrayList<Object> followresult) {
+		this.followresult = followresult;
+	}
+
+	public ArrayList<Object> getTableresult() {
+		return tableresult;
+	}
+
+	public void setTableresult(ArrayList<Object> tableresult) {
+		this.tableresult = tableresult;
 	}
 	
 }
