@@ -9,7 +9,7 @@ import java.util.Queue;
 import java.util.Set;
 
 public class REtoDFA {
-	
+	static REtoDFA rEtoDFASingleton = null;
 	private char leftBracket = '(';
 	private char rightBracket = ')';
 	private char starSymbol = '*';
@@ -24,16 +24,33 @@ public class REtoDFA {
 	private Set<Object>[] followpos = null;
 	private char[] numberToChar = null; //下标+1=字符标号 和字符对应
 	private ArrayList<Set<Object>> states = new ArrayList<Set<Object>>();
+	private Result result = null;
+	private ArrayList<Object> NFLresult = new ArrayList<>();
+	private ArrayList<Object> followresult = new ArrayList<>();
+	private ArrayList<Object> tableresult = new ArrayList<>();
 	
-	REtoDFA() {
+	private REtoDFA(){
 		printLogMessage("RetoDFA constructed:NULL");
 	}
 	
-	REtoDFA(String re) {
+	private REtoDFA(String re) {
 		this.re = re.replaceAll(String.valueOf(endSymbol),"");
 		this.reNow =this.re+endSymbol;
 		printLogMessage("RetoDFA constructed:"+this.re);
 		printLogMessage("RetoDFA add endSymbol:"+reNow);
+	}
+	
+	static public REtoDFA getREtoDFA(){
+		if (rEtoDFASingleton == null)
+			return new REtoDFA();
+		return rEtoDFASingleton;
+	}
+	
+	static public REtoDFA getREtoDFA(String re){
+		if (rEtoDFASingleton == null)
+			return new REtoDFA(re);
+		rEtoDFASingleton.setRe(re);
+		return rEtoDFASingleton;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,14 +61,13 @@ public class REtoDFA {
 			return "constructTree failed";
 		followpos = new Set[tree.getRightNode().getNumber()];
 		numberToChar = new char[tree.getRightNode().getNumber()];
-		printTree(); 
 		printLogMessage("constructTree success\n");
-
 		
 		//计算nullable，firstpos，lastpos
-		if (!computeAllNFP(tree))
-			return "computeAllNFP failed";
-		printLogMessage("computeAllNFP success\n");
+		if (!computeAllNFL(tree))
+			return "computeAllNFL failed";
+		printLogMessage("computeAllNFL success\n");
+
 		
 		//计算followpos
 		for (int i = 0;i < followpos.length;i++)
@@ -66,6 +82,7 @@ public class REtoDFA {
 			return "constructStates failed";
 		printLogMessage("constructStates success\n");
 		
+		result = new Result(tree, NFLresult, followresult, tableresult);
 		printLogMessage("REtoDFA success\n");
 		return "success";
 	}
@@ -94,7 +111,6 @@ public class REtoDFA {
 				leftNodes = new Node(starSymbol);
 				Node childNode =constructTree(startPosition, nextPosition-1);
 				if ( childNode != null){
-					childNode.setFatherNode(leftNodes);
 					leftNodes.setLeftNode(childNode);
 				}
 				else 
@@ -130,7 +146,6 @@ public class REtoDFA {
 					rightNodes = new Node(starSymbol);
 					Node childNode =constructTree(startPosition, nextPosition-1);
 					if ( childNode != null){
-						childNode.setFatherNode(leftNodes);
 						rightNodes.setLeftNode(childNode);
 					}
 					else 
@@ -146,9 +161,7 @@ public class REtoDFA {
 				if (rightNodes == null)
 					return null;
 				fatherNode.setLeftNode(leftNodes);
-				leftNodes.setFatherNode(fatherNode);
 				fatherNode.setRightNode(rightNodes);
-				rightNodes.setFatherNode(fatherNode);
 				leftNodes = fatherNode;
 				fatherNode = null;
 				rightNodes = null;
@@ -228,20 +241,20 @@ public class REtoDFA {
 		}
 	}
 	
-	public boolean computeAllNFP(Node fatherNode){
+	public boolean computeAllNFL(Node fatherNode){
 		/*
-		 * 递归计算所有节点NFP
+		 * 递归计算所有节点NFL
 		 */
 		if (fatherNode != null){
-			boolean result1=computeAllNFP(fatherNode.getLeftNode());
-			boolean result2=computeAllNFP(fatherNode.getRightNode());
-			computeNFP(fatherNode);
+			boolean result1=computeAllNFL(fatherNode.getLeftNode());
+			boolean result2=computeAllNFL(fatherNode.getRightNode());
+			computeNFL(fatherNode);
 			return true && result1 && result2;
 		}
 		return true;
 	}
 	
-	private void computeNFP(Node fatherNode){
+	private void computeNFL(Node fatherNode){
 		/*
 		 * 计算nullable、firstpos、lastpos
 		 */
@@ -290,7 +303,10 @@ public class REtoDFA {
 		}
 		String logMessage =fatherNode.toString()+":"+fatherNode.isNullable()+" "
 				+fatherNode.getFirstpos()+" "+fatherNode.getLastpos();
-		printLogMessage("REtoDFA computeNFPresult:"+logMessage);
+		printLogMessage("REtoDFA computeNFLresult:"+logMessage);
+		insertNFLToNFLResult(new NFLInfo(fatherNode.getKey(),fatherNode.getNumber(),
+				fatherNode.getId(), fatherNode.isNullable(), fatherNode.getFirstpos(), 
+				fatherNode.getLastpos()));
 	}
 	
 	public boolean computeAllFollowPos(Node fatherNode){
@@ -327,6 +343,7 @@ public class REtoDFA {
 			if(followpos[n-1].addAll(firstpos)){
 			String logMessage = "followpos["+(n)+"]="+followpos[n-1];
 			printLogMessage("REtoDFA computeFollowPosResult:"+logMessage);
+			insertFollowPostToFollowresult(new FollowInfo(n, followpos[n-1]));
 			}
 		}
 	}
@@ -341,9 +358,11 @@ public class REtoDFA {
 		states.add(new HashSet<>(tree.getFirstpos())); //S0
 		String logMessage = "S0=firstpos(root)="+states.get(0);
 		printLogMessage(logMessage);
+		insertTableResultToTableresult(new TableInfo(logMessage,null));
 		
 		int markCount = 0; //当前mark的状态
 		logMessage = "Mark S0";
+		insertTableResultToTableresult(new TableInfo(logMessage,null));
 		printLogMessage(logMessage);
 		
 		Set<Object> charSet = new HashSet<>();
@@ -368,19 +387,23 @@ public class REtoDFA {
 						logMessage += "followpos("+numberNow+") ";
 					}
 				}
-				
+				MoveInfo moveInfo = null;
 				if (!newstateSet.isEmpty()){
 					int newState = containsState(newstateSet);
 					logMessage += "=" + newstateSet + "=S" + newState+ "    move(S" 
 									+ markCount + "," + charNow + ")=S" + newState;
+					moveInfo = new MoveInfo(markCount, charNow, newState);
 					if (newState == states.size())
 						states.add(newstateSet);
 				}
 				printLogMessage(logMessage);
+				insertTableResultToTableresult(new TableInfo(logMessage,moveInfo));
 				logMessage = new String();
 			}
-			if (++markCount < states.size())
+			if (++markCount < states.size()){
 				printLogMessage("Mark S"+markCount);
+				insertTableResultToTableresult(new TableInfo(logMessage,null));
+			}
 		}
 		return true;
 	}
@@ -406,12 +429,61 @@ public class REtoDFA {
 		this.followpos = null;
 		this.numberToChar = null;
 		this.states = new ArrayList<Set<Object>>();
+		this.result = null;
+		this.NFLresult = new ArrayList<>();
+		this.followresult = new ArrayList<>();
+		this.tableresult = new ArrayList<>();
+		Node.setIdcount(0);
 	}
 
 	public void printLogMessage (String logMessage){
 		System.out.println(logMessage);
 	}
 	
+	public void insertNFLToNFLResult(Object object){
+		NFLresult.add(object);
+	}
+	
+	public void insertFollowPostToFollowresult(Object object){
+		followresult.add(object);
+	}
+	
+	public void insertTableResultToTableresult(Object object){
+		tableresult.add(object);
+	}
+	
+	public Result getResult() {
+		return result;
+	}
+
+	public void setResult(Result result) {
+		this.result = result;
+	}
+
+	public String getReNow() {
+		return reNow;
+	}
+
+	public void setReNow(String reNow) {
+		this.reNow = reNow;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
+	public ArrayList<Set<Object>> getStates() {
+		return states;
+	}
+
+	public void setStates(ArrayList<Set<Object>> states) {
+		this.states = states;
+	}
+
 	public Node getTree() {
 		return tree;
 	}
@@ -500,32 +572,34 @@ class Node{
 	private int number=-1;
 	private Node leftNode = null;
 	private Node rightNode = null;
-	private Node fatherNode = null;
 	private boolean nullable = false;
 	private Set<Object> firstpos = new HashSet<Object>();
 	private Set<Object> lastpos = new HashSet<Object>();
-	
+	private static int idcount = 0;
+	private int id = -1;
 	
 	Node(char key){
 		this.key = key;
+		id = idcount++;
 	}
 	
 	Node(char key,int number){
 		this.key = key;
 		this.number = number;
+		id = idcount++;
 	}
 	
-	Node(char key,Node leftNode,Node rightNode,Node fatherNode){
+	Node(char key,Node leftNode,Node rightNode){
 		this.key = key;
 		this.leftNode = leftNode;
 		this.rightNode = rightNode;
-		this.fatherNode = fatherNode;
+		id = idcount++;
 	}
 	
 	@Override
 	public String toString(){
-		if (number != -1)
-			return String.valueOf(key)+number+" ";
+		if (getNumber() != -1)
+			return String.valueOf(key)+getNumber()+" ";
 		else
 			return " "+key+" ";
 	}
@@ -552,14 +626,6 @@ class Node{
 
 	public void setRightNode(Node rightNode) {
 		this.rightNode = rightNode;
-	}
-
-	public Node getFatherNode() {
-		return fatherNode;
-	}
-
-	public void setFatherNode(Node fatherNode) {
-		this.fatherNode = fatherNode;
 	}
 
 	public boolean isNullable() {
@@ -594,4 +660,229 @@ class Node{
 		this.number = number;
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public static int getIdcount() {
+		return idcount;
+	}
+
+	public static void setIdcount(int idcount) {
+		Node.idcount = idcount;
+	}
+
+}
+
+class NFLInfo{
+	private char name;
+	private int number;
+	private int id;
+	private boolean nullable;
+	private Set<Object> firstpos;
+	private Set<Object> lastpos;
+	
+	public NFLInfo(char name,int number,int id,boolean nullable,
+			Set<Object> firstpos,Set<Object> lastpos) {
+		this.name = name;
+		this.number = number;
+		this.id = id;
+		this.nullable = nullable;
+		this.firstpos = firstpos;
+		this.lastpos = lastpos;
+	}
+
+	public char getName() {
+		return name;
+	}
+
+	public void setName(char name) {
+		this.name = name;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public boolean isNullable() {
+		return nullable;
+	}
+
+	public void setNullable(boolean nullable) {
+		this.nullable = nullable;
+	}
+
+	public Set<Object> getFirstpos() {
+		return firstpos;
+	}
+
+	public void setFirstpos(Set<Object> firstpos) {
+		this.firstpos = firstpos;
+	}
+
+	public Set<Object> getLastpos() {
+		return lastpos;
+	}
+
+	public void setLastpos(Set<Object> lastpos) {
+		this.lastpos = lastpos;
+	}
+	
+}
+
+class FollowInfo{
+	private int number;
+	private Set<Object> followpos;
+	
+	public FollowInfo(int number,Set<Object> followpos) {
+		this.number = number;
+		this.followpos = followpos;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
+	public Set<Object> getFollowpos() {
+		return followpos;
+	}
+
+	public void setFollowpos(Set<Object> followpos) {
+		this.followpos = followpos;
+	}
+	
+}
+
+class MoveInfo{
+	private int fromState;
+	private char byChar;
+	private int toState;
+	
+	public MoveInfo(int fromState, char byChar, int toState) {
+		super();
+		this.fromState = fromState;
+		this.byChar = byChar;
+		this.toState = toState;
+	}
+
+	public int getFromState() {
+		return fromState;
+	}
+
+	public void setFromState(int fromState) {
+		this.fromState = fromState;
+	}
+
+	public char getByChar() {
+		return byChar;
+	}
+
+	public void setByChar(char byChar) {
+		this.byChar = byChar;
+	}
+
+	public int getToState() {
+		return toState;
+	}
+
+	public void setToState(int toState) {
+		this.toState = toState;
+	}
+	
+}
+class TableInfo{
+	private String info;
+	private MoveInfo moveInfo;
+	
+	public TableInfo(String info, MoveInfo moveInfo) {
+		super();
+		this.info = info;
+		this.moveInfo = moveInfo;
+	}
+
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
+		this.info = info;
+	}
+
+	public MoveInfo getMoveInfo() {
+		return moveInfo;
+	}
+
+	public void setMoveInfo(MoveInfo moveInfo) {
+		this.moveInfo = moveInfo;
+	}
+	
+}
+
+class Result{
+	private Node tree = null;
+	private ArrayList<Object> NFLresult = new ArrayList<>();
+	private ArrayList<Object> followresult = new ArrayList<>();
+	private ArrayList<Object> tableresult = new ArrayList<>();
+	
+	public Result(Node tree, ArrayList<Object> nFLresult, ArrayList<Object> followresult,
+			ArrayList<Object> tableresult) {
+		super();
+		this.tree = tree;
+		NFLresult = nFLresult;
+		this.followresult = followresult;
+		this.tableresult = tableresult;
+	}
+
+	public Node getTree() {
+		return tree;
+	}
+
+	public void setTree(Node tree) {
+		this.tree = tree;
+	}
+
+	public ArrayList<Object> getNFLresult() {
+		return NFLresult;
+	}
+
+	public void setNFLresult(ArrayList<Object> nFLresult) {
+		NFLresult = nFLresult;
+	}
+
+	public ArrayList<Object> getFollowresult() {
+		return followresult;
+	}
+
+	public void setFollowresult(ArrayList<Object> followresult) {
+		this.followresult = followresult;
+	}
+
+	public ArrayList<Object> getTableresult() {
+		return tableresult;
+	}
+
+	public void setTableresult(ArrayList<Object> tableresult) {
+		this.tableresult = tableresult;
+	}
+	
 }
