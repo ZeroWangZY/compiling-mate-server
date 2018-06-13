@@ -10,4 +10,5 @@ import java.util.Map;
 public interface SyntaxParsingService {
     Map<String,Object> getParsingOutput(RequestDto requestDto);
     List<Production> productionProcess(List<ProductionDto> productionDtos, String startSymbol);
+    Map<String,Object> getParsingLL1Output(String startSymbol, List<Map<String,String>> productions, String type);
 }

@@ -5,14 +5,17 @@ import ecnu.compiling.compilingmate.service.SyntaxParsingServiceImpl;
 import ecnu.compiling.compilingmate.synEntity.RequestDto;
 import ecnu.compiling.compilingmate.synEntity.Result;
 import ecnu.compiling.compilingmate.syntax.entity.Production;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/syntax")
@@ -37,6 +40,21 @@ public class SyntaxController {
         }
         return result;
     }
-
+    @RequestMapping(value="/parsingLL1Output",method= RequestMethod.POST)
+    @ResponseBody
+    public Result parsingLL1Output(@RequestParam(value = "startSymbol") String startSymbol, @RequestParam(value = "productions")String productions, @RequestParam(value = "type") String type){
+        Result result=new Result();
+        JSONArray array=JSONArray.fromObject(productions);
+        List<Map<String,String>> productionList=new ArrayList<>();
+        for(Object object:array){
+            Map<String,String> map1=new HashMap<>();
+            map1.put("left",((JSONObject)object).getString("left"));
+            map1.put("right",((JSONObject)object).getString("right"));
+            productionList.add(map1);
+        }
+        result.setData(syntaxParsingService.getParsingLL1Output(startSymbol,productionList,type));
+        result.setSuccess(true);
+        return result;
+    }
 
 }
