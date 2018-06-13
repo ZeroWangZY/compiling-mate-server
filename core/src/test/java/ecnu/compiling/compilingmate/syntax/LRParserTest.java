@@ -1,6 +1,7 @@
 package ecnu.compiling.compilingmate.syntax;
 
 import ecnu.compiling.compilingmate.syntax.analyzer.LRParser;
+import ecnu.compiling.compilingmate.syntax.entity.Goto;
 import ecnu.compiling.compilingmate.syntax.entity.Production;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -36,7 +37,9 @@ public class LRParserTest{
         String[] nt=new String[]{"S","L","R"};
         String[] t=new String[]{"=","*","id","$"};
 
-        lrParser.constructItems(productions, Arrays.asList(nt),Arrays.asList(t),"S");
+        List<Goto> gotoList=new ArrayList<>();
+
+        lrParser.constructItems(productions, Arrays.asList(nt),Arrays.asList(t),"S",gotoList);
     }
 
 }

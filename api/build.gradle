@@ -23,7 +23,9 @@ repositories {
 
 dependencies {
 	compile project(':core')
+	compile group: 'org.json', name: 'json', version: '20180130'
 	compile('org.springframework.boot:spring-boot-starter')
 	compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('net.sf.json-lib:json-lib:2.4:jdk15'	)
 }

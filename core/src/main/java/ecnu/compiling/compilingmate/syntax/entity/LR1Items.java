@@ -61,4 +61,20 @@ public class LR1Items {
     public int hashCode(){
         return Objects.hash(closure);
     }
+
+    public String[] getProductionLeft(){
+        List<String> result=new ArrayList<>();
+        for(LR1Item lr1Item:closure){
+            result.add(lr1Item.getLeft());
+        }
+        return result.toArray(new String[result.size()]);
+    }
+
+    public String[] getProductionRight(){
+        String[] result=new String[closure.size()];
+        for(int i=0;i<result.length;i++){
+            result[i]=closure.get(i).getRightStr();
+        }
+        return result;
+    }
 }

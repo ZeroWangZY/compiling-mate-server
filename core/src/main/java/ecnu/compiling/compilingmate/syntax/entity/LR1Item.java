@@ -16,6 +16,18 @@ public class LR1Item extends LR0Item{
     }
 
     @Override
+    public String getRightStr(){
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append(super.getRightStr());
+        stringBuilder.append(",");
+        for(String l:lookHead){
+            stringBuilder.append(l);
+            stringBuilder.append("/");
+        }
+        return stringBuilder.substring(0,stringBuilder.length()-1);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;

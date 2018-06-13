@@ -1,7 +1,6 @@
 package ecnu.compiling.compilingmate.lex.policy.scanner;
 
 import ecnu.compiling.compilingmate.lex.constants.LexConstants;
-import ecnu.compiling.compilingmate.lex.entity.Token;
 import ecnu.compiling.compilingmate.lex.policy.rule.DefaultReRule;
 import org.apache.commons.lang3.StringUtils;
 

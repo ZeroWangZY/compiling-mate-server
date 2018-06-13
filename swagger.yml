@@ -48,11 +48,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReProcessingOutputData'
+  /syntax/parsingLL1Output:
+    post:
+      tags:
+        - syntax
+      summary: 给定CFG，利用LL1算法获得产生parsing table的过程
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingProcessingInputData'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  data: 
+                    $ref: '#/components/schemas/ParsingLL1OutputData'
+                  message:
+                    type: string
+                    example: ''
   /syntax/parsingProcessingOutput:
     post:
       tags:
         - syntax
       summary: 给定CFG, 获得产生parsing table的过程
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParsingProcessingInputData'
       responses:
         '200':
           description: success
@@ -121,6 +154,32 @@ components:
       required:
         - tokens
 
+    ParsingProcessingInputData:
+      type: object
+      properties:
+        startSymbol:
+          type: string
+        productions:
+          type: array
+          items:
+            type: object
+            properties:
+              left:
+                type: string
+              right:
+                type: string
+        type:
+          type: integer
+      example:
+        startSymbol: 'E'
+        productions:
+          - left: 'E'
+            right: 'A B'
+          - left: 'A'
+            right: 'a'
+          - left: 'B'
+            right: 'b'
+        type: 0
     ReProcessingOutputData:
       type: object
       properties:
@@ -270,7 +329,109 @@ components:
               - moveFrom: 4
                 moveBy: b
                 moveTo: 2
+        dfaToDfaData:
+          type: object
+          example:
+            reTree:
+              id: 1
+              tag: "|"
+              children:
+                - id: 2
+                  tag: "*"
+                - id: 3
+                  tag: "a"
+            tableMap:
+              1:
+                n: "1"
+                nullable: false
+                firstPos:
+                  - 1
+                lastPos:
+                  - 2
+              2:
+                n: "2"
+                nullable: true
+                firstPos:
+                  - 1
+                  - 2
+                lastPos:
+                  - 2
+                  - 3
 
+    ParsingLL1OutputData:
+      type: object
+      properties:
+        firsts:
+          type: object
+          example:
+            F:
+              - '('
+              - 'id'
+            T':
+              - '*'
+              - 'epsilon'
+        follows:
+          type: object
+          example:
+            E:
+              - ')'
+              - '$'
+            T:
+              - '+'
+              - ')'
+              - '$'
+        terminals:
+          type: array
+          items:
+            type: string
+          example:
+            - 'id'
+            - '+'
+            - '*'
+            - '('
+            - ')'
+            - '$'
+        nonTerminals:
+          type: array
+          items:
+            type: string
+          example:
+            - 'E'
+            - "E'"
+            - 'T'
+            - "T'"
+            - 'F'
+        parseTable:
+          type: array
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                production:
+                  type: object
+                  properties:
+                    left:
+                      type: string
+                    right:
+                      type: string
+                reason:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: [first, follow]
+                      key:
+                        type: string
+          example:
+            - - production:
+                  left: E
+                  right: TE'
+                reason:
+                  type: first
+                  key: E
 
     ParsingProcessingOutputData:
       type: object
@@ -340,57 +501,7 @@ components:
             - T
             - F
         parseTable:
-          type: array
-          items:
-            type: array
-            items:
-              type: string
-          example:
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '1'
-              - '2'
-              - '3'
-            - - ''
-              - s6
-              - ''
-              - ''
-              - ''
-              - acc
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r2
-              - s7
-              - ''
-              - r2
-              - r2
-              - ''
-              - ''
-              - ''
-            - - ''
-              - r4
-              - r4
-              - ''
-              - r4
-              - r4
-              - ''
-              - ''
-              - ''
-            - - s5
-              - ''
-              - ''
-              - s4
-              - ''
-              - ''
-              - '8'
-              - '2'
-              - '3'
+          $ref: '#/components/schemas/ParseTable'
     NodeEvent:
       type: object
       properties:
@@ -436,3 +547,78 @@ components:
             - .F
             - .(E)
             - .id
+    ParseTable:
+      type: object
+      properties:
+        table:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        conflict:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+              col:
+                type: integer
+              content:
+                type: array
+                items:
+                  type: string
+      example:
+        table:
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '1'
+            - '2'
+            - '3'
+          - - ''
+            - s6
+            - ''
+            - ''
+            - ''
+            - acc
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r2
+            - s7
+            - ''
+            - r2
+            - r2
+            - ''
+            - ''
+            - ''
+          - - ''
+            - r4
+            - r4
+            - ''
+            - r4
+            - r4
+            - ''
+            - ''
+            - ''
+          - - s5
+            - ''
+            - ''
+            - s4
+            - ''
+            - ''
+            - '8'
+            - '2'
+            - '3'
+        conflict:
+          - row: 4
+            col: 5
+            content:
+              - s5
+              - r3

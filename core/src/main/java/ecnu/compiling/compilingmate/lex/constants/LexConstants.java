@@ -1,10 +1,13 @@
 package ecnu.compiling.compilingmate.lex.constants;
 
-import ecnu.compiling.compilingmate.lex.entity.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.Token;
+import ecnu.compiling.compilingmate.lex.entity.token.TokenKind;
 
 public interface LexConstants {
 
-    Token EMPTY = new Token(SpecialToken.EMPTY.getValue());
+    Token EMPTY = new Token("RE_EMPTY", SpecialToken.EMPTY.getValue(), TokenKind.SPECIAL_VALUE);
+
+    Token DEFAULT_PHRASE_BREAKER = new Token("SEMICOLON",";", TokenKind.PHRASE_BREAKER);
 
     enum Operator{
         OR("|"),
@@ -14,7 +17,7 @@ public interface LexConstants {
 
         String value;
 
-        private Operator(String value){
+        Operator(String value){
             this.value = value;
         }
 
@@ -33,7 +36,7 @@ public interface LexConstants {
 
         String value;
 
-        private SpecialToken(String value){
+        SpecialToken(String value){
             this.value = value;
         }
 
