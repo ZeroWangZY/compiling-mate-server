@@ -56,7 +56,7 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
         treeSteps[0]=new TreeStep("add",new Node("0",null,null,"0",lr0ItemsList.get(0).getProductionLeft(),lr0ItemsList.get(0).getProductionRight()));
 
         for(int i=0;i<gotoList.size();i++){
-            Node node=new Node(String.valueOf(i)+1,gotoList.get(i),lr0ItemsList.get(gotoList.get(i).getEndIndex()));
+            Node node=new Node(String.valueOf(i+1),gotoList.get(i),lr0ItemsList.get(gotoList.get(i).getEndIndex()));
             treeSteps[i+1]=new TreeStep("add",node);
         }
         return treeSteps;
@@ -82,6 +82,17 @@ public class SyntaxParsingServiceImpl implements SyntaxParsingService{
             productions.add(new Production(productionDto.getLeft(),productionDto.getRightStrs()));
         }
         return productions;
+    }
+
+    @Override
+    public Map<String,Object> getActionOutput(ActionRequestDto actionRequestDto){
+        Map<String,Object> data=new HashMap<>();
+        ProductionList productionList=new ProductionList(actionRequestDto.getProductions(),actionRequestDto.getStartSymbol());
+
+        String[][] actionResult=new SLRParser().searchTable(productionList.getProductions(),
+                actionRequestDto.getInput().split("\\s"),actionRequestDto.getTable(),Arrays.asList(actionRequestDto.getSymbols()));
+        data.put("actionResult",actionResult);
+        return data;
     }
 
 

@@ -18,9 +18,10 @@ public class SLRParser implements BottomUpParser<LR0Items>{
         resultMap.put("itemsList",lr0ItemsList);
         resultMap.put("parsingTable",parsingTable);
         String[] input = {"id","*","id","+","id"};
-        searchTable(productions,input,parsingTable);
+        //String[][] actionResult=searchTable(productions,input,parsingTable);
         return resultMap;
     }
+
 
     @Override
     public List<LR0Items> constructItems(List<Production> productions, List<String> nt, List<String> t,String startSymbol, List<Goto> gotoList) {
@@ -102,41 +103,74 @@ public class SLRParser implements BottomUpParser<LR0Items>{
     }
 
 
+    //table：0.stack 1.input 2.action 3.output
 
-    public void searchTable(List<Production> productions,String[] input,ParsingTable actionTable){
-        //        System.out.println("---------------search table-----------------");
+    public String[][] searchTable(List<Production> productions,String[] input,String[][] table, List<String> symbols){
+        List<String[]> actionOutput=new ArrayList<>();
         Stack<String> stack=new Stack<>();
         String[] myInput=new String[input.length+1];
         System.arraycopy(input,0,myInput,0,input.length);
-        myInput[input.length]="$";
+        myInput[input.length]="$"; //myInput新增终止符
         stack.push("0");
         int pointer=0; //input光标
         while(true){
-            TableUnit action=actionTable.getUnit(myInput[pointer],Integer.valueOf(stack.peek()));
+            String[] outputRow=new String[4];
+            //System.out.println("table["+Integer.valueOf(stack.peek())+"]["+symbols.indexOf(myInput[pointer])+"]");
+            //TableUnit action=actionTable.getUnit(myInput[pointer],Integer.valueOf(stack.peek()));
+            TableUnit action=new TableUnit(table[Integer.valueOf(stack.peek())][symbols.indexOf(myInput[pointer])]);
+
             System.out.print("stack:"+stack.toString()+"     ");
+            StringBuilder stackSb=new StringBuilder();
+            for(String s:stack){
+                stackSb.append(s);
+            }
+            outputRow[0]=stackSb.toString();
+
+
+            StringBuilder inputSb=new StringBuilder();
+            for(int i=pointer;i<myInput.length;i++){
+                inputSb.append(myInput[i]);
+            }
+            outputRow[1]=inputSb.toString();
+            System.out.print("input:"+inputSb.toString());
+
             if(action.getType()==0){ //reduce
                 System.out.println("action:"+"reduce by "+ productions.get(action.getNumber()).toString());
+                outputRow[2]="reduce by "+ productions.get(action.getNumber()).toString();
+                outputRow[3]=productions.get(action.getNumber()).toString();
                 for(int i=0;i<productions.get(action.getNumber()).getRight().length * 2 ;i++){
                     stack.pop(); //弹出产生式右边
                 }
-                TableUnit gotoUnit=actionTable.getUnit(productions.get(action.getNumber()).getLeft(),Integer.valueOf(stack.peek()));
+                //TableUnit gotoUnit=actionTable.getUnit(productions.get(action.getNumber()).getLeft(),Integer.valueOf(stack.peek()));
+                TableUnit gotoUnit=new TableUnit(table[Integer.valueOf(stack.peek())][symbols.indexOf(productions.get(action.getNumber()).getLeft())]);
+                //System.out.println("gotoUnit:table["+Integer.valueOf(stack.peek())+"]["+symbols.indexOf(productions.get(action.getNumber()).getLeft())+"]");
                 stack.push(productions.get(action.getNumber()).getLeft());
                 stack.push(String.valueOf(gotoUnit.getNumber()));
             }
             else if(action.getType()==1){ //shift
                 System.out.println("action:"+"shift "+action.getNumber());
+                outputRow[2]="shift "+action.getNumber();
+                outputRow[3]="";
                 stack.push(myInput[pointer]);
                 stack.push(String.valueOf(action.getNumber()));
                 pointer++;
             }
             else if(action.getType()==2){
                 System.out.println("accept");
+                outputRow[2]="accept";
+                outputRow[3]="";
+                actionOutput.add(outputRow);
                 break;
             }
             else{
                 System.out.println("error");
+                outputRow[2]="error";
+                outputRow[3]="";
+                actionOutput.add(outputRow);
                 break;
             }
+            actionOutput.add(outputRow);
         }
+        return actionOutput.toArray(new String[actionOutput.size()][]);
     }
 }

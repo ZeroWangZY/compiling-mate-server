@@ -7,6 +7,26 @@ public class TableUnit {
         number=0;
         type=-1;
     }
+
+    public TableUnit(String actionStr){
+        number=0;
+        type=-1;
+        if(actionStr.length()!=0) {
+            if (actionStr.equals("acc")) {
+                type = 2;
+            } else if (actionStr.substring(0, 1).equals("s")) {
+                type = 1;
+                number = Integer.valueOf(actionStr.substring(1));
+            } else if (actionStr.substring(0, 1).equals("r")) {
+                type = 0;
+                number = Integer.valueOf(actionStr.substring(1));
+            }
+            else{
+                type=1;
+                number=Integer.valueOf(actionStr);
+            }
+        }
+    }
     public int getNumber() {
         return number;
     }
