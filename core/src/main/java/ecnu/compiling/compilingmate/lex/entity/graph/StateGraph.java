@@ -129,14 +129,17 @@ public class StateGraph implements Cloneable {
                         }
                     }
                 } else if (!CollectionUtils.isEmpty(state.getNextStatesWhenEmptyInput())){
+                    List<NfaState> tmpList = new ArrayList<>();
                     for (NfaState fakeNext : state.getNextStatesWhenEmptyInput()) {
                         for (NfaState nextState : copy.states){
                             if (nextState.getId().equals(fakeNext.getId())){
-                                state.addNextWithEmptyInput(nextState);
+                                tmpList.add(nextState);
                                 break;
                             }
                         }
                     }
+                    state.getNextStatesWhenEmptyInput().clear();
+                    state.getNextStatesWhenEmptyInput().addAll(tmpList);
                 }
 
             }

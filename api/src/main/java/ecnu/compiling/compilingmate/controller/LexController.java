@@ -1,5 +1,7 @@
 package ecnu.compiling.compilingmate.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import ecnu.compiling.compilingmate.lex.entity.token.LanguageDefinition;
 import ecnu.compiling.compilingmate.entity.Result;
 import ecnu.compiling.compilingmate.entity.TompsonData;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,19 +54,26 @@ public class LexController {
     @ResponseBody
     public Result reProcessingOutput(@RequestBody String json){
         JSONObject jsonObj = new JSONObject(json);
-        String input = jsonObj.getString("input");
-        String ruleName = "";
 
         Result result = new Result();
+        Gson GSON = new Gson();
+        if (jsonObj != null) {
+            String input = jsonObj.getString("input");
+            String ruleName = "";
 
-        try {
-            Rule rule = lexService.getRuleByName(ruleName);
-            result.setSuccess(true);
-            result.setData(lexService.fullLexAnalyzeByTompsonAndSubsetConstruction(input, rule));
-        } catch (Exception e){
+            try {
+                Rule rule = lexService.getRuleByName(ruleName);
+                result.setSuccess(true);
+                result.setData(lexService.fullLexAnalyzeByTompsonAndSubsetConstruction(input, rule));
+            } catch (Exception e) {
+                result.setSuccess(false);
+                result.setMsg(e.getMessage());
+            }
+        } else {
             result.setSuccess(false);
-            result.setMsg(e.getMessage());
+            result.setMsg("Input invalid");
         }
+
 
         return result;
     }
@@ -85,7 +95,7 @@ public class LexController {
         		result.setSuccess(false);
         } catch (Exception e){
             result.setSuccess(false);
-            result.setMsg(e.getMessage());
+            result.setMsg("Input invalid");
         }
 
         return result;

@@ -28,6 +28,10 @@ public class ParsingTable {
        this.symbolList.addAll(nList);
    }
 
+   public ParsingTable(String[][] table, String[] input){
+
+   }
+
    public void setTable(int number,int type,int state,String terminal){
        if(table[symbolList.indexOf(terminal)][state].type!=-1){  //conflicted
            conflicted(number, type, state, terminal);
